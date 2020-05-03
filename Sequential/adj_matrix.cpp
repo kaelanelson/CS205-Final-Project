@@ -8,58 +8,60 @@ sequential adjacency matrix implementation */
 using namespace std;
 
 int numVertices;
-int** adjMatrix;
+int **adjMatrix;
 
 void addEdge(int i, int j);
+
 void printMatrix();
 
-int main(int argc, char * argv[]){
-    
-    if(argc != 2){
+int main(int argc, char *argv[]) {
+
+    if (argc != 2) {
         cout << "Specify an input file" << endl;
         exit(1);
     }
-    
+
     ifstream file(argv[1], ifstream::binary);
-    if(!file.is_open()) {
+    if (!file.is_open()) {
         cout << "Unable to open file " << argv[1] << endl;
         exit(2);
     }
-    
+
     /* Count number of IDs */
     int maxId = 0;
     string id;
-    while(!file.eof()){
+    while (!file.eof()) {
         file >> id;
         maxId = max(maxId, stoi(id));
     }
     file.clear();
     file.seekg(0);
-    
+
     /* Initialize adjacency matrix */
-    numVertices = maxId+1; /* change */
-    adjMatrix = new int*[numVertices];
+    numVertices = maxId;
+    adjMatrix = new int *[numVertices];
     for (int i = 0; i < numVertices; i++) {
         adjMatrix[i] = new int[numVertices];
         for (int j = 0; j < numVertices; j++)
             adjMatrix[i][j] = 0;
     }
-    
+
     /* Add edges to matrix */
     string i1, i2;
-    while(!file.eof()){
+    while (!file.eof()) {
         file >> i1;
         file >> i2;
-        addEdge(stoi(i1), stoi(i2));
+//        since array is 0 indexed, but data starts w/ 1
+        addEdge(stoi(i1) - 1, stoi(i2) - 1);
     }
     file.close();
-    
+
     printMatrix();
-    
+
     for (int i = 0; i < numVertices; i++)
         delete[] adjMatrix[i];
     delete[] adjMatrix;
-    
+
     return 0;
 }
 
