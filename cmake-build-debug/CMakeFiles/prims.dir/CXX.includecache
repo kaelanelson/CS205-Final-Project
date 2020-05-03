@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/Simon/classes/CS205-Final-Project/Sequential/adj_matrix.h
+iostream
+-
+fstream
+-
+algorithm
+-
+
+/Users/Simon/classes/CS205-Final-Project/Sequential/prims.cpp
+iostream
+-
+fstream
+-
+list
+-
+algorithm
+-
+adj_matrix.h
+/Users/Simon/classes/CS205-Final-Project/Sequential/adj_matrix.h
+iostream
+-
+cstring
+-
+
