@@ -35,7 +35,7 @@ void Graph::addEdge(int v1, int v2, int w) {
 }
 
 //Adapted from https://www.geeksforgeeks.org/prims-algorithm-using-priority_queue-stl/
-void Graph::prims() {
+void Graph::prims(int start_vertex) {
     // create a queue,
     priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > Q;
 
@@ -46,7 +46,10 @@ void Graph::prims() {
     bool *visited = new bool[num_vertices];
     for (int i = 0; i < num_vertices; i++)
         visited[i] = false;
-    int s = 0;
+
+    // assign index to start at
+    int s = start_vertex;
+
     // mark s as visited and put s into Q
     visited[s] = true;
     Q.push(make_pair(0, s));
@@ -112,7 +115,7 @@ int main(int argc, char *argv[]) {
     }
     file.close();
     cout << "Beginning Prims MST from vertex 0 \n";
-    G.prims();
+    G.prims(0);
     return 0;
 }
 
