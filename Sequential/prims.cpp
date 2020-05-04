@@ -42,21 +42,16 @@ int main(int argc, char *argv[]) {
 
 
     file.close();
-    printMatrix(numVertices, adjMatrix);
+//    printMatrix(numVertices, adjMatrix);
     primsAlgorithm(numVertices);
 }
-
-#include <iostream>
-#include <cstring>
-
-using namespace std;
 
 // Adapted from https://www.programiz.com/dsa/prim-algorithm
 void primsAlgorithm(int numVertices) {
 
     int numEdges = 0; //init
     bool *selected = new bool[numVertices];
-    for (int v = 0; v< numVertices; v++){
+    for (int v = 0; v < numVertices; v++) {
         selected[v] = false;
     }
     // choose 0th vertex and make it true
@@ -82,7 +77,7 @@ void primsAlgorithm(int numVertices) {
                 }
             }
         }
-        cout << row << " - " << col << " :  " << adjMatrix[row][col]<<"\n";
+        cout << row << " - " << col << " :  " << adjMatrix[row][col] << "\n";
         selected[col] = true;
         numEdges++;
     }

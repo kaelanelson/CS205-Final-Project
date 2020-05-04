@@ -29,7 +29,7 @@ int **createAdjMatrix(ifstream &file, int numVertices) {
     while (!file.eof()) {
         file >> i1;
         file >> i2;
-        addEdge(stoi(i1)-1, stoi(i2)-1, matrix);
+        addEdge(stoi(i1), stoi(i2), matrix);
     }
     return matrix;
 

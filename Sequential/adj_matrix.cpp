@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     file.seekg(0);
 
     /* Initialize adjacency matrix */
-    numVertices = maxId;
+    numVertices = maxId+1;
     adjMatrix = new int *[numVertices];
     for (int i = 0; i < numVertices; i++) {
         adjMatrix[i] = new int[numVertices];
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         file >> i1;
         file >> i2;
 //        since array is 0 indexed, but data starts w/ 1
-        addEdge(stoi(i1) - 1, stoi(i2) - 1);
+        addEdge(stoi(i1), stoi(i2));
     }
     file.close();
 
