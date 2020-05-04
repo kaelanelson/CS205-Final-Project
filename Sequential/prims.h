@@ -1,6 +1,6 @@
 /* Simon Warchol, CS 205 Project, Spring 2020
+Kaela Nelson Adaption to return shortest path array
 Prim's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-adjacency-list-representation-greedy-algo-6/ */
-
 #include <iostream>
 #include <queue>
 #include <fstream>
@@ -20,7 +20,7 @@ public:
     // Adds an edge between vertex v1 and vertex v1 w/ weight w
     void addEdge(int v1, int v2, int w);
 
-    void prims(int start_vertex);
+    vector<int> prims(int start_vertex);
 
 };
 
@@ -35,7 +35,7 @@ void Graph::addEdge(int v1, int v2, int w) {
 }
 
 //Adapted from https://www.geeksforgeeks.org/prims-algorithm-using-priority_queue-stl/
-void Graph::prims(int start_vertex) {
+vector<int> Graph::prims(int start_vertex) {
     // create a queue,
     priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > Q;
 
@@ -76,46 +76,6 @@ void Graph::prims(int start_vertex) {
     }
     for (int i = 1; i < num_vertices; ++i)
         printf("%d - %d\n", parent[i], i);
-}
-
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        cout << "Specify an input file" << endl;
-        exit(1);
-    }
-
-    ifstream file(argv[1], ifstream::binary);
-    if (!file.is_open()) {
-        cout << "Unable to open file " << argv[1] << endl;
-        exit(2);
-    }
-    // Count number of IDs
-    int maxId = 0;
-    string id1, id2, w;
-//    Find the max vertex id (exclude weights)
-    while (!file.eof()) {
-        file >> id1 >> id2 >> w;
-        maxId = max(maxId, stoi(id1));
-        maxId = max(maxId, stoi(id2));
-    }
-    cout << "MAX:" << maxId;
-    file.clear();
-    file.seekg(0);
-
-    // initialize graph
-    Graph G(maxId + 1);
-
-    // Add edges
-    string i1, i2, i3;
-    while (!file.eof()) {
-        file >> i1;
-        file >> i2;
-        file >> i3;
-        G.addEdge(stoi(i1), stoi(i2), stoi(i3));
-    }
-    file.close();
-    cout << "Beginning Prims MST from vertex 0 \n";
-    G.prims(0);
-    return 0;
+    return parent;
 }
 
