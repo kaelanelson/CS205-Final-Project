@@ -101,7 +101,7 @@ void Graph::ClosenessCentrality(int maxId){
 		int tot_sp = accumulate(sp.begin(), sp.end(), 0);
 
 		if(tot_sp>0 and num_vertices>1){
-			closeness_centrality[i] = ((float)maxId - 1)/(float)tot_sp;
+			closeness_centrality[i] = ((float)maxId - 1)/(float)tot_sp; // N-1/sum(path distances)
 			}
 
 		else{
