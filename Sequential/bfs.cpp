@@ -1,5 +1,6 @@
 /* Kaela Nelson, CS 205 Project, Spring 2020
-sequential breadth first search implementation */
+sequential breadth first search implementation
+adapted from https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/ */
 
 #include <iostream>
 #include <fstream>
