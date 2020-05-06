@@ -6,76 +6,61 @@ Prim's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-adjac
 #include <fstream>
 #include <list>
 #include <algorithm>
+#include <array>
 
 using namespace std;
 
 // Build Graph from adjacency matrix (represented as a list)
-class Graph {
-    int num_vertices;
-    list<pair<int, int> > *A;
 
-public:
-    Graph(int num_vertices);
+int num_vertices;
+int **A;
 
-    // Adds an edge between vertex v1 and vertex v1 w/ weight w
-    void addEdge(int v1, int v2, int w);
+void addEdge(int v1, int v2, int w);
 
-    void prims(int start_vertex);
+void prims(int s);
 
-};
 
-Graph::Graph(int num_vertices) {
-    this->num_vertices = num_vertices;
-    A = new list<pair<int, int> >[num_vertices];
+void addEdge(int v1, int v2, int w) {
+    A[v1][v2] = w;
+    A[v2][v1] = w;
 }
 
-void Graph::addEdge(int v1, int v2, int w) {
-    A[v1].push_back(make_pair(v2, w));
-    A[v2].push_back(make_pair(v1, w));
-}
+// Adapted from https://www.programiz.com/dsa/prim-algorithm
+void prims(int s) {
 
-//Adapted from https://www.geeksforgeeks.org/prims-algorithm-using-priority_queue-stl/
-void Graph::prims(int start_vertex) {
-    // create a queue,
-    priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > Q;
+    int numEdges = 0; //init
+    bool *selected = new bool[num_vertices];
+    for (int v = 0; v < num_vertices; v++) {
+        selected[v] = false;
+    }
+    // choose sth vertex and make it true
+    selected[s] = true;
 
-    vector<int> key(num_vertices, INT_MAX);
+    int row, col;
+    cout << "Edge" << " : " << "Weight\n";
+    while (numEdges < num_vertices - 1) {
+        int min = INT_MAX;
+        row = 0;
+        col = 0;
+        for (int i = 0; i < num_vertices; i++) {
+            if (selected[i]) {
+                for (int j = 0; j < num_vertices; j++) {
+                    if (!selected[j] && A[i][j] != 0) { // not in selected and there is an edge
+                        if (min > A[i][j]) {
+                            min = A[i][j];
+                            row = i;
+                            col = j;
+                        }
 
-    vector<int> parent(num_vertices, -1);
-    // create visited list
-    bool *visited = new bool[num_vertices];
-    for (int i = 0; i < num_vertices; i++)
-        visited[i] = false;
-
-    // assign index to start at
-    int s = start_vertex;
-
-    // mark s as visited and put s into Q
-    visited[s] = true;
-    Q.push(make_pair(0, s));
-
-    // list<int>::iterator i;
-    while (!Q.empty()) {
-        // pop off head of Q
-        int v1 = Q.top().second; // second will be the source
-        Q.pop();
-        visited[v1] = true;
-
-        // mark and enqueue all unvisited neighbor nodes of s
-        list<pair<int, int> >::iterator i;
-        for (i = A[v1].begin(); i != A[v1].end(); ++i) {
-            int v2 = (*i).first;
-            int w = (*i).second;
-            // if this weight is smaller and we still haven't visited the vertex
-            if (!visited[v2] && key[v2] > w) {
-                key[v2] = w;
-                Q.push(make_pair(key[v2], v2));
-                parent[v2] = v1;
+                    }
+                }
             }
         }
+        cout << row << " - " << col << " :  " << A[row][col] << "\n";
+        selected[col] = true;
+        numEdges++;
     }
-    for (int i = 1; i < num_vertices; ++i)
-        printf("%d - %d\n", parent[i], i);
+
 }
 
 int main(int argc, char *argv[]) {
@@ -98,24 +83,27 @@ int main(int argc, char *argv[]) {
         maxId = max(maxId, stoi(id1));
         maxId = max(maxId, stoi(id2));
     }
-    cout << "MAX:" << maxId;
-    file.clear();
+    num_vertices = maxId + 1;
+    A = new int *[num_vertices];
+
+//  Initialize an adjacency matrix
+    for (int i = 0; i < num_vertices; i++) {
+        A[i] = new int[num_vertices];
+        for (int j = 0; j < num_vertices; j++)
+            A[i][j] = 0;
+    }
     file.seekg(0);
-
-    // initialize graph
-    Graph G(maxId + 1);
-
     // Add edges
     string i1, i2, i3;
     while (!file.eof()) {
         file >> i1;
         file >> i2;
         file >> i3;
-        G.addEdge(stoi(i1), stoi(i2), stoi(i3));
+        addEdge(stoi(i1), stoi(i2), stoi(i3));
     }
     file.close();
     cout << "Beginning Prims MST from vertex 0 \n";
-    G.prims(0);
+    prims(0);
     return 0;
 }
 
