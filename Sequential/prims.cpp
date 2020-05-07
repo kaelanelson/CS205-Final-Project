@@ -39,7 +39,7 @@ void prims(int s) {
     int row, col;
     cout << "Edge" << " : " << "Weight\n";
     while (numEdges < num_vertices - 1) {
-        int min = INT_MAX;
+        int min = INT32_MAX;
         row = 0;
         col = 0;
         for (int i = 0; i < num_vertices; i++) {
