@@ -6,7 +6,10 @@ Closeness Centrality, adapted from */
 #include <fstream>
 #include <list>
 #include <mpi.h>
-
+#include <algorithm>
+#include <array>
+#include <numeric>
+#include <queue>
 
 using namespace std;
 
@@ -21,7 +24,7 @@ typedef struct { int v1; int v2; } Edge;
 
 void addEdge(int v1, int v2, int w);
 vector<int> prims(int s, int rank);
-void ClosenessCentrality(int maxId, int rank)
+void ClosenessCentrality(int maxId, int rank);
 void distributeAdjacencyMatrix(int rank);
 
 
@@ -48,9 +51,9 @@ vector<int> prims(int s, int rank) {
     vector<int> row_ls(num_vertices);
     vector<int> col_ls(num_vertices);
     int *min_pair = new int[2];
-    if(rank==0){
-        cout << "Edge" << " : " << "Weight (num_vertices)"<<num_vertices<<"\n";
-    }
+    // if(rank==0){
+        // cout << "Edge" << " : " << "Weight (num_vertices)"<<num_vertices<<"\n";
+    // }
     // This way of reducing to find the min via https://github.com/elahehrashedi/MPI_Prime_MST/blob/master/PrimMPI.c
     struct { int min; int rank; } minRow, row;
     while (numEdges < num_vertices-1) {
@@ -79,9 +82,9 @@ vector<int> prims(int s, int rank) {
         edge.v2 = c;
         MPI_Bcast(&edge, 1, MPI_2INT, minRow.rank, MPI_COMM_WORLD);
         MPI_Bcast(&min, 1, MPI_INT, minRow.rank, MPI_COMM_WORLD);
-        if (rank==0){
-            cout << "Adding Edge: "<<edge.v1 << " - " << edge.v2 << " :  " << A[edge.v1 * num_vertices + edge.v2] << "\n";
-        }
+        // if (rank==0){
+            // cout << "Adding Edge: "<<edge.v1 << " - " << edge.v2 << " :  " << A[edge.v1 * num_vertices + edge.v2] << "\n";
+        // }
         selected[edge.v1] = 1;
         selected[edge.v2] = 1;
         row_ls[l] = edge.v1;
@@ -101,12 +104,12 @@ vector<int> prims(int s, int rank) {
         
         if(k == 0){ // if current node is the first node, add weight
             // p[k] = A[cr][cc];
-            p[k] = A[cr * num_vertices + cc]
+            p[k] = A[cr * num_vertices + cc];
         }
 
         else if(k > 0 && cr == row_ls[0]){ // if current node is same as first node, add weight
             // p[k] = A[cr][cc];
-            p[k] = A[cr * num_vertices + cc]
+            p[k] = A[cr * num_vertices + cc];
         }
 
         else if(k > 0 && cr == col_ls[k-1]){ 
@@ -134,11 +137,13 @@ void ClosenessCentrality(int maxId, int rank){
 
          // add up path distances to neighboring nodes
         int tot_sp = accumulate(sp.begin(), sp.end(), 0);
-
+        // if(rank==0){
+            // cout<<"maxid : "<<maxId;
+        // }
         // calculate closeness
         // not normalized 
         if(tot_sp>0 and num_vertices>1){
-            closeness_centrality[i] = ((float)maxId - 1)/(float)tot_sp; 
+            closeness_centrality[i] = ((float)num_vertices - 1)/(float)tot_sp; 
             }
 
         else{
@@ -147,15 +152,18 @@ void ClosenessCentrality(int maxId, int rank){
         }
 
     // print for each node's closeness measurement;
+    if(rank==0){
+    cout << "Closeness Centrality : ";
     for (int i = 1; i < num_vertices; ++i)
         cout << i << " : " << closeness_centrality[i] << "\n";
-
+    }
     }
 
 int main(int argc, char *argv[]) {
     MPI_Status status;
 
     int rank;
+    int maxId;
     /* Initialize MPI and get rank and size */
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -226,7 +234,7 @@ int main(int argc, char *argv[]) {
     blocksize = nper * num_vertices;
     distributeAdjacencyMatrix(rank);
     // prims(0, rank);
-    ClosenessCentrality(0,rank);
+    ClosenessCentrality(maxId,rank);
     free(A);
     MPI_Finalize();
 

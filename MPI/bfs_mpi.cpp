@@ -1,7 +1,6 @@
 /* Kaela Nelson, CS 205 Project, Spring 2020
-serial breadth first search implementation
-adapted from https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/ and
-https://www.geeksforgeeks.org/implementation-of-bfs-using-adjacency-matrix/ */
+Parallelized breadth first search implementation
+Adapted from https://github.com/starlordvk/Parallel-BFS/blob/master/MPI/MPI.cpp*/
 
 #include <iostream>
 #include <fstream>
@@ -9,6 +8,7 @@ https://www.geeksforgeeks.org/implementation-of-bfs-using-adjacency-matrix/ */
 #include <algorithm>
 #include <bits/stdc++.h> 
 #include "mpi.h"
+#define MAX_QUEUE_SIZE 5
 
 using namespace std;
 
@@ -22,7 +22,7 @@ class Graph
 public:
 	Graph(int num_vertices, int num_edges);
 	void addEdge(int n, int e);
-	void BFS(int first);
+	void BFS(int first, int rank);
 };
 
 Graph::Graph(int num_vertices, int num_edges){
@@ -44,29 +44,38 @@ void Graph::addEdge(int n, int e){
 }
 
 
-void Graph::BFS(int first){
-	// create visited list, fill with false
-	vector<bool> visited(num_vertices, false); 
+void Graph::BFS(int first, int rank){
 
-	// create a queue, Q
-	vector<int> Q;
-
-	// mark s as visited and put s into Q
-	visited[first] = true;
-	Q.push_back(first);
-
-	int bfs_traversal[num_vertices];
 	// broadcast number of vertices and source vertex
 	MPI_Bcast(&num_vertices, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(&first, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
 	// scatter each row of adjacency matrix, A to each of processes
-	// adjacency row = A[s]
-	MPI_Scatter(A, num_vertices, MPI_INT, num_vertices, MPI_INT, 0, MPI_COMM_WORLD);
+	// send_data, send_count, MPI dtype, recv_data, recv-count, MPI dtype,COMM
+	MPI_Scatter(A, num_vertices, MPI_INT, adjacency_row, num_vertices, MPI_INT, 0, MPI_COMM_WORLD);
 	
+	// initialize adjecency queue of each process
+	// for(int i=0; i < MAX_QUEUE_SIZE; i++)
+	// 	adjacency_queue[i] = -1;
+	// adjacency_queue[0] = first
+
 
 	int s;
-	if(rank >= source_vertex){
+	if(rank >= first){
+		// create visited list, fill with false
+		vector<bool> visited(num_vertices, false); 
+
+		int adjacency_row[num_vertices];
+		// int bfs_traversal[num_vertices];
+
+		// create a queue, Q
+		vector<int> Q;
+		// int adjacency_queue[MAX_QUEUE_SIZE];
+
+		// mark s as visited and put s into Q
+		visited[first] = true;
+		Q.push_back(first);
+
 		while(!Q.empty()){
 			// pop off head of Q
 			s = Q[0];
@@ -74,7 +83,7 @@ void Graph::BFS(int first){
 			cout << s << " ";
 			Q.erase(Q.begin());
 			
-
+			// int index = 0;
 			// mark and enqueue all unvisited neighbor nodes of s
 			for (int i = 0; i < num_vertices; i++){
 				// if not visited, mark as true in visited,a nd push into queue
@@ -82,21 +91,29 @@ void Graph::BFS(int first){
 				if (A[s][i] == 1 && (!visited[i])){
 					visited[i] = true;
 					Q.push_back(i);
+					// adjacency_queue[index++] = i;
 				}
 			}
 		}
 	}
 
 	// synchronization
-	MPI_Barrier(MPI_cOMM_WORLD);
+	// MPI_Barrier(MPI_COMM_WORLD);
 	// Gather all nodes
-	MPI_Gather(Q, num_vertices, MPI_INT, bfs_traversal, num_vertices, MPI_INT,0,MPI_COMM_WORLD);
+	MPI_Gather(Q, num_vertices, MPI_INT, adjacency_row, MAX_QUEUE_SIZE, MPI_INT,0,MPI_COMM_WORLD);
+
+	// free everything up
+	// free(bfs_traversal);
+	// free(adjacency_row);
 }
 
 int main(int argc, char * argv[]){
 
 	int size,rank;
 	int source_vertex = 1;
+	int maxId;
+	// initialize graph
+	Graph* G;
 	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -122,7 +139,8 @@ int main(int argc, char * argv[]){
 	    }
 	    file.clear();
 	    file.seekg(0);
-
+	
+	
 	    // initialize graph
 		Graph G(maxId+1, maxId);
 
@@ -136,10 +154,11 @@ int main(int argc, char * argv[]){
 		file.close();
 	}
 	
-	cout << "BFS traversal starting. from vertex 1 \n";
-	G.BFS(source_vertex);
 
-	
+	cout << "BFS traversal starting. from vertex 1 \n";
+	G->BFS(source_vertex, rank);
+
+	// free(A);
 	MPI_Finalize();
 
 	return 0;

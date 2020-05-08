@@ -1,4 +1,5 @@
 
+
 #include <iostream>
 #include <queue>
 #include <fstream>
@@ -60,7 +61,7 @@ vector<int> prims(int s) {
                 }
             }
         }
-        cout << row << " - " << col << " :  " << A[row][col] << "\n";
+        // cout << row << " - " << col << " :  " << A[row][col] << "\n";
         selected[col] = true;
         numEdges++;
         row_ls[l] = row;
@@ -112,7 +113,7 @@ void ClosenessCentrality(int maxId){
         // calculate closeness
         // not normalized 
         if(tot_sp>0 and num_vertices>1){
-            closeness_centrality[i] = ((float)maxId - 1)/(float)tot_sp; 
+            closeness_centrality[i] = ((float)num_vertices - 1)/(float)tot_sp; 
             }
 
         else{
