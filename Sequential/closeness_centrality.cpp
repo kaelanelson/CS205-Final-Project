@@ -60,7 +60,7 @@ vector<int> prims(int s) {
                 }
             }
         }
-        // cout << row << " - " << col << " :  " << A[row][col] << "\n";
+        cout << row << " - " << col << " :  " << A[row][col] << "\n";
         selected[col] = true;
         numEdges++;
         row_ls[l] = row;
