@@ -7,9 +7,12 @@ https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp */
 #include <fstream>
 #include <algorithm>
 #include <stdio.h>
+#include <time.h>
+#include "timing.h"
 
 using namespace std;
 
+timing_t tstart, tend;
 int numVertices;
 int **adjMatrix;
 double **transMatrix;
@@ -73,6 +76,9 @@ int main(int argc, char *argv[]) {
 
 	printMatrix();
 
+	/* PageRank starts here. */
+	get_time(&tstart);
+
 	/* Initialize transition matrix */
 	transMatrix = new double *[numVertices];
 	for (int i = 0; i < numVertices; i++) {
@@ -105,7 +111,7 @@ int main(int argc, char *argv[]) {
 			for (int k = 0; k < numVertices; k++)
 				sum += currentMatrix[i][k] * transMatrix[k][j];
 			currentMatrix[i][j] = sum;
-			}
+		}
 
 		// Check convergence 
 		prevDiff = squareDiff;
@@ -116,18 +122,20 @@ int main(int argc, char *argv[]) {
 		for (int i = 1; i < numVertices; i++) {
 			diff = (currentMatrix[i][j] - currentMatrix[0][j]);
 			squareDiff += diff * diff;
-			}
+		}
 		currentDiff = abs(prevDiff - squareDiff); 
 		step++;
 	}
 	while(currentDiff > 0.0001);
+	/* End of PageRank algorithm. */
+	get_time(&tend);
+
 	printf( "\n" );
 
 	// Printing out PageRank vector
 	double	rank[numVertices];
 	int	vertex[numVertices];
-	for (int j = 0; j < numVertices; j++) 
-		{
+	for (int j = 0; j < numVertices; j++) {
 		vertex[j] = j;
 		rank[j] = currentMatrix[0][j]; 
 		}
@@ -137,9 +145,8 @@ int main(int argc, char *argv[]) {
 
 	// Sorting PageRank vector
 	int	i = 0, j = 1;
-	do	{
-		if ( rank[i] < rank[j] )
-			{
+	do {
+		if ( rank[i] < rank[j] ) {
 			int	node_i, node_j;
 			double	temp_i, temp_j;
 			temp_i = rank[i];
@@ -152,18 +159,21 @@ int main(int argc, char *argv[]) {
 			vertex[j] = node_i;
 			i = 0;
 			j = 1;
-			}
-		else	{
+		}
+		else {
 			++i;
 			++j;
-			}
 		}
+	}
 	while (j < numVertices);
 
 	// display the stationary vector's components in sorted order 	
 	printf( "Sorted vertices by PageRank: \n" );
 	for (int j = 0; j < numVertices; j++) cout << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
 	printf( "\n" );
+
+	printf("*****************************************************\n");
+	printf ("Elapsed Time: %g s.\n", timespec_diff(tstart,tend));
 
 	/* Deletions */
 	for (int i = 0; i < numVertices; i++)
