@@ -44,7 +44,6 @@ void Graph::addEdge(int n, int e){
 
 
 void Graph::BFS(int first){
-
 	// create visited list, fill with false
 	vector<bool> visited(num_vertices, false); 
 
@@ -55,11 +54,21 @@ void Graph::BFS(int first){
 	visited[first] = true;
 	Q.push_back(first);
 
-	// list<int>::iterator i;
+	
+	// broadcast number of vertices and source vertex
+	MPI_Bcast(&num_vertices, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	MPI_Bcast(&first, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+	// scatter each row of adjacency matrix, A to each of processes
+	// adjacency row = A[s]
+	MPI_Scatter(A, num_vertices, MPI_INT, A[s], num_vertices, MPI_INT, 0, MPI_COMM_WORLD);
+	
+
 	int s;
 	while(!Q.empty()){
 		// pop off head of Q
 		s = Q[0];
+		cout << "Process" << rank << ":";
 		cout << s << " ";
 		Q.erase(Q.begin());
 		
@@ -74,9 +83,22 @@ void Graph::BFS(int first){
 			}
 		}
 	}
+
+	// synchronization
+	MPI_Barrier(MPI_cOMM_WORLD);
+	// Gather all nodes
+	MPI_Gather(Q, num_vertices, MPI_INT, bfs_traversal, num_vertices, MPI_INT,0,MPI_COMM_WORLD);
 }
 
 int main(int argc, char * argv[]){
+
+	int size,rank;
+	int bfs_traversal[num_vertices];
+
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
 	if(argc != 2){
         cout << "Specify an input file" << endl;
         exit(1);
@@ -109,8 +131,13 @@ int main(int argc, char * argv[]){
 	}
 	file.close();
 
+	int source_vertex = 1;
+
 	cout << "BFS traversal starting. from vertex 1 \n";
-	G.BFS(1);
+	G.BFS(source_vertex);
+
+	
+	MPI_Finalize();
 
 	return 0;
 }
