@@ -9,6 +9,8 @@ Kruskal's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-ad
 #include <algorithm>
 #include <mpi.h>
 #include <math.h>
+#include <omp.h>
+
 
 
 using namespace std;
@@ -101,7 +103,13 @@ void kruskals(int rank, int num_iters) {
 
     for (int iter = 1; iter<num_iters+2; iter++){
         // Sort Edges by weight, increasing
-        qsort(E, num_edges, sizeof(edge), compare_edges);
+        #pragma omp parallel sections
+        { 
+              #pragma omp section
+            {
+                qsort(E, num_edges, sizeof(edge), compare_edges);
+            }
+        }
 
         DisjointSets DS(num_vertices);
 
@@ -131,7 +139,7 @@ void kruskals(int rank, int num_iters) {
                 MPI_Recv(&new_edges, 1, MPI_INT, from_who, 2, MPI_COMM_WORLD, &status);
                 edge* new_E = new edge[new_edges+msf_edge_count];
                 MPI_Recv(new_E, new_edges, mpi_edge, from_who, 3, MPI_COMM_WORLD, &status);
-
+                #pragma omp parallel for private(i) shared(msf_edge_count,msf_edges,new_E,new_edges)
                 for (int i =0;i<msf_edge_count;i++){
                     new_E[new_edges+i] = msf_edges[i];
                 }
