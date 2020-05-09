@@ -8,7 +8,7 @@ Adapted from https://github.com/starlordvk/Parallel-BFS/blob/master/MPI/MPI.cpp*
 #include <algorithm>
 #include <bits/stdc++.h> 
 #include "mpi.h"
-#define MAX_QUEUE_SIZE 5
+#define MAX_QUEUE_SIZE 10
 
 using namespace std;
 
@@ -22,7 +22,8 @@ class Graph
 public:
 	Graph(int num_vertices, int num_edges);
 	void addEdge(int n, int e);
-	void BFS(int first, int rank);
+	void BFS(int first, int rank, int size);
+	int areAllVisited(int visited[]);
 };
 
 Graph::Graph(int num_vertices, int num_edges){
@@ -43,8 +44,30 @@ void Graph::addEdge(int n, int e){
 	A[e][n] = 1;
 }
 
+int Graph::areAllVisited(int visited[])
+{
+	for(int i = 0; i < num_vertices; i++)
+	{
+		if(visited[i] == 0)
+			return 0;
+	}
+	return 1;
+}
 
-void Graph::BFS(int first, int rank){
+
+void Graph::BFS(int first, int rank, int size){
+	// create visited list, fill with false
+	// create a queue, Q
+	int Q[MAX_QUEUE_SIZE];
+	int visited[num_vertices*num_vertices];
+	int adjacency_row[num_vertices]; // create adjacency row to be distributed to processes
+	int bfs_traversal[num_vertices*num_vertices];
+
+	// initialize Q
+	for(int i = 0; i < MAX_QUEUE_SIZE; i++)
+	{
+		Q[i] = -1;
+	}
 
 	// broadcast number of vertices and source vertex
 	MPI_Bcast(&num_vertices, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -52,59 +75,65 @@ void Graph::BFS(int first, int rank){
 
 	// scatter each row of adjacency matrix, A to each of processes
 	// send_data, send_count, MPI dtype, recv_data, recv-count, MPI dtype,COMM
-	MPI_Scatter(A, num_vertices, MPI_INT, adjacency_row, num_vertices, MPI_INT, 0, MPI_COMM_WORLD);
-	
-	// initialize adjecency queue of each process
-	// for(int i=0; i < MAX_QUEUE_SIZE; i++)
-	// 	adjacency_queue[i] = -1;
-	// adjacency_queue[0] = first
+	MPI_Scatter(A, num_vertices*num_vertices, MPI_INT, adjacency_row, num_vertices, MPI_INT, 0, MPI_COMM_WORLD);
 
 
 	int s;
+	int index = 0;
 	if(rank >= first){
-		// create visited list, fill with false
-		vector<bool> visited(num_vertices, false); 
-
-		int adjacency_row[num_vertices];
-		// int bfs_traversal[num_vertices];
-
-		// create a queue, Q
-		vector<int> Q;
-		// int adjacency_queue[MAX_QUEUE_SIZE];
-
-		// mark s as visited and put s into Q
-		visited[first] = true;
-		Q.push_back(first);
-
-		while(!Q.empty()){
-			// pop off head of Q
-			s = Q[0];
-			cout << "Process" << rank << ":";
-			cout << s << " ";
-			Q.erase(Q.begin());
-			
-			// int index = 0;
-			// mark and enqueue all unvisited neighbor nodes of s
-			for (int i = 0; i < num_vertices; i++){
-				// if not visited, mark as true in visited,a nd push into queue
-				// else, do nothing
-				if (A[s][i] == 1 && (!visited[i])){
-					visited[i] = true;
-					Q.push_back(i);
-					// adjacency_queue[index++] = i;
-				}
+		for (int i = 0; i < num_vertices; i++){
+			if (adjacency_row[i] == 1){
+				Q[index++] = i;
 			}
 		}
 	}
 
-	// synchronization
-	// MPI_Barrier(MPI_COMM_WORLD);
-	// Gather all nodes
-	MPI_Gather(Q, num_vertices, MPI_INT, adjacency_row, MAX_QUEUE_SIZE, MPI_INT,0,MPI_COMM_WORLD);
+	cout << "Process " << rank << ":";
+	for(int i=0;i<index;i++){
+		cout<<Q[i]<<" ";
+	}
+	cout << endl;
 
-	// free everything up
-	// free(bfs_traversal);
-	// free(adjacency_row);
+	// synchronization
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	// Gather all nodes
+	// send_data, send_count, MPI dtype, recv_data, recv-count, MPI dtype, COMM
+	MPI_Gather(&Q, MAX_QUEUE_SIZE, MPI_INT, bfs_traversal, MAX_QUEUE_SIZE, MPI_INT, 0, MPI_COMM_WORLD);
+
+	// initialize visited with all 0's
+	for(int i = 0; i < num_vertices; i++)
+	{
+		visited[i] = 0;
+	}
+
+	// print out order
+	if(rank == 0)
+	{
+		cout<<"\nBFS Traversal: "<<endl;
+		cout<<first;
+		for(int i = 0; i < num_vertices*MAX_QUEUE_SIZE; i++)
+		{
+			//Exit Condition
+			if(areAllVisited(visited))
+			{
+				break;
+			}
+
+			if(bfs_traversal[i] != -1)
+			{
+				if(visited[bfs_traversal[i]] == 0)
+				{
+					cout<<" "<<bfs_traversal[i];
+					visited[bfs_traversal[i]] = 1;
+				}
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
 }
 
 int main(int argc, char * argv[]){
@@ -156,11 +185,12 @@ int main(int argc, char * argv[]){
 	
 
 	cout << "BFS traversal starting. from vertex 1 \n";
-	G->BFS(source_vertex, rank);
+	G->BFS(source_vertex, rank, size);
 
 	// free(A);
 	MPI_Finalize();
-
 	return 0;
 }
+
+
 
