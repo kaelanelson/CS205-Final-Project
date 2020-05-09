@@ -7,6 +7,9 @@ Prim's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-adjac
 #include <list>
 #include <algorithm>
 #include <array>
+#include <cstdio>
+#include <ctime>
+
 
 using namespace std;
 
@@ -102,8 +105,14 @@ int main(int argc, char *argv[]) {
         addEdge(stoi(i1), stoi(i2), stoi(i3));
     }
     file.close();
+    std::clock_t start;
+    double duration;
+    start = std::clock();
     cout << "Beginning Prims MST from vertex 0 \n";
     prims(0);
+    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    cout<<"printf: "<< duration <<'\n';
     return 0;
 }
+
 

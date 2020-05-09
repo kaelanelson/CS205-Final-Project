@@ -58,8 +58,9 @@ void prims(int s, int rank) {
         int min = INT32_MAX;
         r = 0;
         c = 0;
+        int i = 0;
         #pragma omp parallel for private(i) shared(nper, row_offset, selected, A, min)
-        for (int i = row_offset; i < (nper+row_offset); i++) {
+        for (i = row_offset; i < (nper+row_offset); i++) {
             if (selected[i] == 1) {
                 for (int j = 0; j < num_vertices; j++) {
                     if (selected[j] == 0  && A[i * num_vertices + j] != 0) { // not in selected and there is an edge
@@ -94,6 +95,9 @@ void prims(int s, int rank) {
 
 int main(int argc, char *argv[]) {
     MPI_Status status;
+    double tstart, tend;
+
+
 
     int rank;
     /* Initialize MPI and get rank and size */
@@ -165,7 +169,12 @@ int main(int argc, char *argv[]) {
     row_offset = rank * nper;
     blocksize = nper * num_vertices;
     distributeAdjacencyMatrix(rank);
+    tstart = MPI_Wtime();
     prims(0, rank);
+    tend = MPI_Wtime();
+    /* Timing summary */
+    if (rank == 0)
+        printf( "Elapsed time: %g s\n",tend-tstart);
     free(A);
     MPI_Finalize();
     

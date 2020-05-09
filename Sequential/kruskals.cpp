@@ -7,6 +7,8 @@ Kruskal's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-ad
 #include <fstream>
 #include <list>
 #include <algorithm>
+#include <cstdio>
+#include <ctime>
 
 using namespace std;
 
@@ -148,7 +150,12 @@ int main(int argc, char *argv[]) {
     }
     file.close();
     cout << "Beginning Kruskals MST \n";
+    std::clock_t start;
+    double duration;
+    start = std::clock();
     kruskals();
+    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    cout<<"printf: "<< duration <<'\n';
     return 0;
 }
 
