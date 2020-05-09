@@ -81,11 +81,11 @@ vector<int> prims(int s) {
             p[k] = A[cr][cc];
         }
 
-        else if(k > 0 && cr == row_ls[0]){ // if current node is same as first node, add weight
+        else if(cr == row_ls[0]){ // if current node is same as first node, add weight
             p[k] = A[cr][cc];
         }
 
-        else if(k > 0 && cr == col_ls[k-1]){ 
+        else if(cr == col_ls[k-1]){ 
             // else, the current node is connected to the previous node -> sum up weights from path leading up to it
             int pc = col_ls[k-1];
             summ = summ + A[cr][pc];

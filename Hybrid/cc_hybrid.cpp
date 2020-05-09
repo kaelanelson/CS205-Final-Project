@@ -147,6 +147,7 @@ void ClosenessCentrality(int maxId, int rank){
 
 
     list<int>::iterator i;
+    #pragma omp parallel for
     for(int i=0; i < num_vertices; i++){
         // sum min path starting at node i
         vector<int> sp = prims(i,rank);
@@ -287,6 +288,3 @@ void distributeAdjacencyMatrix(int rank){
     }
 
 }
-
-
-
