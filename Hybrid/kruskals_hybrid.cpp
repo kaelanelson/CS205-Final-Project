@@ -139,8 +139,9 @@ void kruskals(int rank, int num_iters) {
                 MPI_Recv(&new_edges, 1, MPI_INT, from_who, 2, MPI_COMM_WORLD, &status);
                 edge* new_E = new edge[new_edges+msf_edge_count];
                 MPI_Recv(new_E, new_edges, mpi_edge, from_who, 3, MPI_COMM_WORLD, &status);
+                int i;
                 #pragma omp parallel for private(i) shared(msf_edge_count,msf_edges,new_E,new_edges)
-                for (int i =0;i<msf_edge_count;i++){
+                for (i =0;i<msf_edge_count;i++){
                     new_E[new_edges+i] = msf_edges[i];
                 }
                 E = new_E;
@@ -232,7 +233,7 @@ void divideAndDistributeEdges(int argc, char *argv[]){
 
 int main(int argc, char *argv[]) {
     MPI_Status status;
-
+    double tstart, tend;
     int rank;
     
     /* Initialize MPI and get rank and size */
@@ -251,23 +252,30 @@ int main(int argc, char *argv[]) {
         E = new edge[num_edges];
         MPI_Recv(E, num_edges, mpi_edge, 0, 1, MPI_COMM_WORLD, &status);
     }
+    tstart = MPI_Wtime();
     kruskals(rank, num_iters);
-    if(rank==0){
-        cout<<"\nFinal\n";
-        for (int i = 0;i < num_edges; i++){
-            int v1 = E[i].v1;
-            int v2 = E[i].v2;
-            int w = E[i].weight;
-            cout << v1 << " - " << v2 << " - " << w << endl;
-        }
-        for (int i=0;i<size;i++){
-            free(edgesPerProcess[i]);
-        }
-        free(edgesPerProcess);
-        free(numEdgesPerProcess);
-    }
+    tend = MPI_Wtime();
+
+    // if(rank==0){
+    //     cout<<"\nFinal\n";
+    //     for (int i = 0;i < num_edges; i++){
+    //         int v1 = E[i].v1;
+    //         int v2 = E[i].v2;
+    //         int w = E[i].weight;
+    //         cout << v1 << " - " << v2 << " - " << w << endl;
+    //     }
+    //     for (int i=0;i<size;i++){
+    //         free(edgesPerProcess[i]);
+    //     }
+    //     free(edgesPerProcess);
+    //     free(numEdgesPerProcess);
+    // }
+    if (rank == 0)
+        printf( "Elapsed time: %g s\n",tend-tstart);
+    terminate_process();
     terminate_process();
 
 }
+
 
 

@@ -224,6 +224,7 @@ void divideAndDistributeEdges(int argc, char *argv[]){
 
 int main(int argc, char *argv[]) {
     MPI_Status status;
+    double tstart, tend;
 
     int rank;
     
@@ -243,7 +244,10 @@ int main(int argc, char *argv[]) {
         E = new edge[num_edges];
         MPI_Recv(E, num_edges, mpi_edge, 0, 1, MPI_COMM_WORLD, &status);
     }
+    tstart = MPI_Wtime();
     kruskals(rank, num_iters);
+    tend = MPI_Wtime();
+
     if(rank==0){
         cout<<"\nFinal\n";
         for (int i = 0;i < num_edges; i++){
@@ -258,6 +262,8 @@ int main(int argc, char *argv[]) {
         free(edgesPerProcess);
         free(numEdgesPerProcess);
     }
+    if (rank == 0)
+        printf( "Elapsed time: %g s\n",tend-tstart);
     terminate_process();
 
 }

@@ -21,7 +21,6 @@ int offset, blocksize, size, nper, row_offset;
 int *min_edge;
 typedef struct { int v1; int v2; } Edge;
 
-
 void addEdge(int v1, int v2, int w);
 
 void prims(int s, int rank);
@@ -92,6 +91,8 @@ void prims(int s, int rank) {
 
 int main(int argc, char *argv[]) {
     MPI_Status status;
+    double tstart, tend;
+
 
     int rank;
     /* Initialize MPI and get rank and size */
@@ -163,7 +164,12 @@ int main(int argc, char *argv[]) {
     row_offset = rank * nper;
     blocksize = nper * num_vertices;
     distributeAdjacencyMatrix(rank);
+    tstart = MPI_Wtime();
     prims(0, rank);
+    tend = MPI_Wtime();
+    /* Timing summary */
+    if (rank == 0)
+        printf( "Elapsed time: %g s\n",tend-tstart);
     free(A);
     MPI_Finalize();
 
