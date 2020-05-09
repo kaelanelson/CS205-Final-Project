@@ -82,9 +82,9 @@ vector<int> prims(int s, int rank) {
         edge.v2 = c;
         MPI_Bcast(&edge, 1, MPI_2INT, minRow.rank, MPI_COMM_WORLD);
         MPI_Bcast(&min, 1, MPI_INT, minRow.rank, MPI_COMM_WORLD);
-        if (rank==0){
-            cout << "Adding Edge: "<<edge.v1 << " - " << edge.v2 << " :  " << A[edge.v1 * num_vertices + edge.v2] << "\n";
-        }
+        // if (rank==0){
+            // cout << "Adding Edge: "<<edge.v1 << " - " << edge.v2 << " :  " << A[edge.v1 * num_vertices + edge.v2] << "\n";
+        // }
         selected[edge.v1] = 1;
         selected[edge.v2] = 1;
 
@@ -106,10 +106,10 @@ vector<int> prims(int s, int rank) {
         int cr = row_ls[k];
         int cc = col_ls[k];
 
-        if(rank==0){
-        cout << "cr : " << cr << endl;
+        // if(rank==0){
+        // cout << "cr : " << cr << endl;
         // cout << "cc : " << cc << endl;
-        }
+        // }
         
         if(k == 0){ // if current node is the first node, add weight
             // p[k] = A[cr][cc];
@@ -160,8 +160,8 @@ void ClosenessCentrality(int maxId, int rank){
         // not normalized 
         if(tot_sp>0 and num_vertices>1){
             if(rank==0)
-                // cout << (float)num_vertices -1 << endl;
-            closeness_centrality[i] = ((float)num_vertices - 2)/(float)tot_sp; 
+            // nummber od nodes / sum of min paths
+            closeness_centrality[i] = ((float)num_vertices - 1)/(float)tot_sp; 
             }
 
         else{
@@ -173,7 +173,7 @@ void ClosenessCentrality(int maxId, int rank){
     // print for each node's closeness measurement;
     if(rank==0){
         cout << "Closeness Centrality : " << endl;
-        for (int i = 0; i < num_vertices; ++i)
+        for (int i = 1; i < num_vertices; ++i)
             cout << i << " : " << closeness_centrality[i] << "\n";
     }
 }
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]){
             maxId = max(maxId, stoi(id2));
         }
         num_vertices = maxId + 1;
-        cout << num_vertices;
+        // cout << num_vertices;
         A = new int[num_vertices * num_vertices];
 
         //  Initialize an adjacency matrix
