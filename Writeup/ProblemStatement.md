@@ -17,16 +17,14 @@ Despite the long history of graph theory and network analysis, there are still m
 
 ### Algorithms
 
-To investigate how parallel computing can solve these challenges, we picked seven important graph algorithms to parallelize. 
+To investigate how parallel computing can solve these challenges, we picked seven important graph algorithms to parallelize. For more information on these algorithms, please see **Model and Data**.
 
-- **Graph Representation as an Adjacency Matrix**: Most graph data is provided in a format where each record is an edge between two nodes. In order to use this information, the data must be transformed into a graph representation such as an adjacency matrix. 
-- **Shortest Path Calculation using Breath First Search**: We are often interested in finding the shortest path between two nodes in a graph. An example use case is finding the shortest path between two intersections on a road map. 
-- **Minimum Spanning Tree:** We calculate the tree of minimum weight that touches every edge in a graph. For example, if we want to install cablelines that cover a particular neighbor, we want to ensure that we use reach every house in the most efficient way possible. Finding a minimum spanning tree is also often a precursor for other analyses such as centrality. As this is a graph calculation for which many different implementations exist, we will parallelize and compare two different algorithms. 
-  - **Prims**
-  - **Kruskals**
-- **Degree Centrality:** A simple measure of the most important (or central) nodes in a graph is that of the number of edges, or degrees, for each node. 
-- **Closeness Centrality**: Another common measure of centrality defines a central node as one that is closer to all other nodes. 
-- **PageRank**: Initially developed for ranking web pages, this algorithm can be applied to any graph. It measures centrality through a recursive definition: important nodes are those that are connected to from other important nodes. 
+- **Graph Representation as an Adjacency Matrix**
+- **Shortest Path Calculation using Breath First Search**
+- **Minimum Spanning Tree**
+- **Degree Centrality** 
+- **Closeness Centrality**
+- **PageRank**
 
 ## Need for High Performance Computing and Big Data
 
