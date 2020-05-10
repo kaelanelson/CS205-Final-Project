@@ -19,30 +19,30 @@ As described above, the BFS algorithm must keep track of which nodes were visite
 We were able to parallelize BFS with OpenMP, as follows:
 ```c++
 while(!Q.empty()){
-		// pop off head of Q
-		#pragma omp critical
-		{
-		s = Q[0];
-		cout << s << " ";
-		Q.erase(Q.begin());
-		}
+	// pop off head of Q
+	#pragma omp critical
+	{
+	s = Q[0];
+	cout << s << " ";
+	Q.erase(Q.begin());
+	}
 
-		// mark and enqueue all unvisited neighbor nodes of s
-		#pragma omp parallel for
-		for (int i = 0; i < num_vertices; i++){
-			// if not visited, mark as true in visited,and push into queue
-			// else, do nothing
-			if (A[s][i] == 1 && (!visited[i])){
-				#pragma omp critical
-				{
-				visited[i] = true;
-				Q.push_back(i);
-				}
+	// mark and enqueue all unvisited neighbor nodes of s
+	#pragma omp parallel for
+	for (int i = 0; i < num_vertices; i++){
+		// if not visited, mark as true in visited,and push into queue
+		// else, do nothing
+		if (A[s][i] == 1 && (!visited[i])){
+			#pragma omp critical
+			{
+			visited[i] = true;
+			Q.push_back(i);
 			}
 		}
 	}
+}
 ```
-Note that we included ```#pragma omp critical``` to indicate that each processor has this common queue or array and it locks it in, keeping a sort of global copy for among all processors. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
+Note that we included ```c++ #pragma omp critical``` to indicate that each processor has this common queue or array and it locks it in, keeping a sort of global copy for among all processors. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
 
 # Closeness Centrality
 
