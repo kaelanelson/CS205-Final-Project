@@ -2,8 +2,9 @@
 
 ## Specs of the System
 
-- m4.xlarge - chosen because it represents a good compromise between compute and memory efficiency 
+-  m4.2xlarge - chosen because it represents a good compromise between compute and memory efficiency 
 - 8 vCPUs
+- 4 Cores
 - 32GiB mem
 - 1,000 Mbps Dedicated EBS Bandwidth 
 - CPU -   Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
