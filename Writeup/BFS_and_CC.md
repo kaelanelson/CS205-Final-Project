@@ -18,9 +18,9 @@ Closeness Centrality finds the most central node in a graph. It is very useful f
 
 ## Sequential algorithm
 For each node in a connected graph g, with starting vertex, s:
-1 . Find the minimum distances to all other nodes, or path, from s. Distance is calculated through a minimum spanning tree algorithm - we use prims algorithm. 
-2.  Sum all of these distances. 
-3. If the sum is greater than 0 and the graph has more than 1 node, calculate closeness centrality by dividing the number of nodes by this sum. Otherwise, set the closeness measure for this node to 0. 
+1.	Find the minimum distances to all other nodes, or path, from s. Distance is calculated through a minimum spanning tree algorithm - we use prims algorithm. 
+2.	Sum all of these distances. 
+3. 	If the sum is greater than 0 and the graph has more than 1 node, calculate closeness centrality by dividing the number of nodes by this sum. Otherwise, set the closeness measure for this node to 0. 
 The node with the smallest value is the most central.
 
 ## Parallelization with MPI
