@@ -15,9 +15,9 @@ The purpose of this project is to improve the runtime of commonly used graph alg
 
 ### Data
 
-We are concerned with creating algorithms that are domain agnostic and can be used on a variety of data. Thus, we are not concerned with the specifics of any one dataset. Instead, we will be using datasets from a diverse set of domains to test our algorithms. 
+We are concerned with creating algorithms that are domain agnostic and can be used on a variety of data. Thus, we are not concerned with the specifics of any one dataset. We used a mix of real and artificial datasets to test our algorithms as some algorithms, like Minimum Spanning Tree algorithms, benefitted from particular graph densities for testing. 
 
-These datasets are obtained from the **[Stanford Large Network Dataset Collection (SNAP)](https://snap.stanford.edu/data/index.html)** which provides large datasets from diverse domains. These datasets have also been cleaned and prepared for graph analytics, letting us focus on on implementation. There was only minimal data processing required to concatenate edge files as they were often provided as separate text files. 
+Our main test data, the ego-Facebook dataset, was obtained from the **[Stanford Large Network Dataset Collection (SNAP)](https://snap.stanford.edu/data/index.html)** which provides large datasets from diverse domains. These datasets have also been cleaned and prepared for graph analytics, letting us focus on on implementation. There was only minimal data processing required to concatenate edge files as they were provided as separate text files. 
 
 | Dataset                                                      | Type                   | Nodes | Edges  | Description                        | Tested On |
 | ------------------------------------------------------------ | ---------------------- | ----- | ------ | ---------------------------------- | --------- |
@@ -37,4 +37,4 @@ These datasets are obtained from the **[Stanford Large Network Dataset Collectio
 
 Each row holds a single edge between two nodes. In the example above, there are 5 edges and 8 nodes. The resulting graph could be represented visually as:
 
-![graph](/home/pau/IACS/Spring2020/cs205/project/website/graph.png)
+![graph](graph.png)
