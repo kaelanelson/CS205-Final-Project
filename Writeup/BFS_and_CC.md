@@ -42,7 +42,7 @@ while(!Q.empty()){
 	}
 }
 ```
-Note that we included ```#pragma omp critical``` to indicate that each processor has this common queue or array and it locks it in, keeping a sort of global copy for among all processors. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
+Note that we included ```#pragma omp critical``` to indicate that each processor has a common queue or array and it locks it in, keeping a sort of global copy among all jobs. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
 
 # Closeness Centrality
 
@@ -57,7 +57,35 @@ The node with the smallest value is the most central.
 
 ## Parallelization
 ### Parallelization with MPI
-Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prim?s algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minmum spanning path with MPI.
+Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prim?s algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minimum spanning path with MPI.
 
 ### Hybrid Parallelization with MPI and OpenMP
-We created the hybrid version with OpenMP by updating loops to calculate distance and centrality in parallel.
+We created the hybrid version with OpenMP that reduces execution time by first incorporating prims hybrid parallelization. Then, we focus on parallelizing the loop that goes through and sums the minimum distance from the source vertex and all other vertices, as follows:
+
+```c++
+    // create p: a list containing the path lengths from node s to all other nodes
+    vector<int> p(num_vertices);
+    int summ = 0;
+    int k = 0;
+    #pragma omp parallel for private(k) shared(summ)
+    for(int k=0; k < num_vertices-1; k++){
+        int cr = row_ls[k];
+        int cc = col_ls[k];
+        if(k == 0){ // if current node is the first node, add weight
+            p[k] = A[cr * num_vertices + cc];
+
+        }
+        else if(cr == row_ls[0]){ // if current node is same as first node, add weight
+            p[k] = A[cr * num_vertices + cc];
+        }
+
+        else if(cr == col_ls[k-1]){ 
+             int pc = col_ls[k-1];
+            summ = summ + A[cr * num_vertices + pc];
+            p[k] = summ;
+            }
+        }
+    return p;
+```
+With this hybrid parallelization, we were able to achieve nearly linear speed up.
+
