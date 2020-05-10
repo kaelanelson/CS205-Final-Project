@@ -7,8 +7,8 @@ For a graph, g, and starting node, s, the algorithm is as follows:
 1.	Create an array, V, that records with nodes of g have been visited. Mark the entry at node s as visited.
 2.	Create a queue, Q, that contains the next nodes to be visited. Assign the first node to be visited as s.
 3.	While Q is not empty:
-a.	Access the first node in Q, erase it from Q, and  check if this node has already been visited, as marked in V.
-b.	If not visited, add it to the end of Q, and mark as visited in V
+a.		Access the first node in Q, erase it from Q, and  check if this node has already been visited, as marked in V.
+b.		If not visited, add it to the end of Q, and mark as visited in V
 Note: Print out order of traversal by printing out the next element at the front of Q
 
 ## Parallelization
