@@ -257,20 +257,15 @@ int main(int argc, char *argv[]){
 
     // if (rank == 0){
     // prims(0, rank);
-    // tstart = MPI_Wtime();
+    tstart = MPI_Wtime();
     ClosenessCentrality(maxId,rank);
-    // tend = MPI_Wtime();
+    tend = MPI_Wtime();
 
     /* Timing summary */
-
-    // cout << "Elapsed time: ";
-    // cout << tstart << endl;
-    // cout << tend ;
-    // }
-    // printf("Elapsed time: %g s\n", tend-tstart);
+    if (rank == 0)
+        printf( "Elapsed time: %g s\n",tend-tstart);
 
     free(A);
-
     MPI_Finalize();
 
     return 0;

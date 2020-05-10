@@ -10,9 +10,11 @@ Closeness Centrality, adapted from */
 #include <array>
 #include <numeric>
 #include <queue>
+#include <omp.h>
 
 using namespace std;
 
+// Build Graph from adjacency matrix (represented as a list)
 // Build Graph from adjacency matrix (represented as a list)
 
 int num_vertices;
@@ -55,11 +57,14 @@ vector<int> prims(int s, int rank) {
         // cout << "Edge" << " : " << "Weight (num_vertices)"<<num_vertices<<"\n";
     // }
     // This way of reducing to find the min via https://github.com/elahehrashedi/MPI_Prime_MST/blob/master/PrimMPI.c
+    
     struct { int min; int rank; } minRow, row;
     while (numEdges < num_vertices-1) {
         int min = INT32_MAX;
         r = 0;
         c = 0;
+        int i = 0;
+        #pragma omp parallel for private(i) shared(nper, row_offset, selected, A, min)
         for (int i = row_offset; i < (nper+row_offset); i++) {
             if (selected[i] == 1) {
                 for (int j = 0; j < num_vertices; j++) {
@@ -101,6 +106,8 @@ vector<int> prims(int s, int rank) {
     vector<int> p(num_vertices);
     // if(rank==0){
     int summ = 0;
+    int k = 0;
+    #pragma omp parallel for private(k) shared(summ)
     for(int k=0; k < num_vertices-1; k++){
 
         int cr = row_ls[k];
@@ -147,7 +154,6 @@ void ClosenessCentrality(int maxId, int rank){
 
 
     list<int>::iterator i;
-    #pragma omp parallel for
     for(int i=0; i < num_vertices; i++){
         // sum min path starting at node i
         vector<int> sp = prims(i,rank);
@@ -258,20 +264,15 @@ int main(int argc, char *argv[]){
 
     // if (rank == 0){
     // prims(0, rank);
-    // tstart = MPI_Wtime();
+    tstart = MPI_Wtime();
     ClosenessCentrality(maxId,rank);
-    // tend = MPI_Wtime();
+    tend = MPI_Wtime();
 
     /* Timing summary */
-
-    // cout << "Elapsed time: ";
-    // cout << tstart << endl;
-    // cout << tend ;
-    // }
-    // printf("Elapsed time: %g s\n", tend-tstart);
+    if (rank == 0)
+        printf( "Elapsed time: %g s\n",tend-tstart);
 
     free(A);
-
     MPI_Finalize();
 
     return 0;
@@ -288,3 +289,6 @@ void distributeAdjacencyMatrix(int rank){
     }
 
 }
+
+
+
