@@ -34,5 +34,5 @@ A stretch goal was to develop a Multiple Program - Multiple Data model that coul
 
 ##### Amazon Web Services EC2
 
-We developed and tested our programs on two types of AWS instances. For each type, we had 9 instances: 1 master node and 8 worker nodes. We chose to use m4.xlarge instances as they provide a good compromise between compute and memory efficiency per $-hour, as well as high network performance to ensure that our processors can quickly communicate with each other. 
+We developed and tested our programs on two m4.2xlarge instances which provided 8 total vCPUs. This instance type was chosen as as it provides a good compromise between compute and memory efficiency per $-hour, as well as high network performance to ensure that our processors can quickly communicate with each other. For more information, see [Specs](Specs.md). 
 
