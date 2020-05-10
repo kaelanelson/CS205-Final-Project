@@ -38,3 +38,5 @@ Our main test data, the ego-Facebook dataset, was obtained from the **[Stanford 
 Each row holds a single edge between two nodes. In the example above, there are 5 edges and 8 nodes. for the ego-Facebook dataset, the nodes (circles) would represent the id of a Facebook user. For example, User 285 is friends with three other users: 186, 176, and 108. The resulting graph could be represented visually as:
 
 ![graph](graph.png)
+
+One exception here is that for the MST algorithms, we generated our own data to test on. This generation script is availible in `/data/generate_mst_data.py`. This was done because the facebook datasets did not contain singular spanning trees, and as such, it was more useful to test on adjacency lists with confirmed MSTs in them.
