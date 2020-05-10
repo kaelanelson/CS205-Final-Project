@@ -74,6 +74,10 @@ Speed up results are as follows
 
 From the table and plot above, we see the speed up initially increases sharply when utilizing between 2 to 4 cores. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
 
+<a id="note3" href="#note3ref"><sup>3</sup></a>[BFS for a Graph](https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/)
+
+<a id="note4" href="#note4ref"><sup>4</sup></a>[Parallel Breadth-First Search on Distributed Memory Systems](https://people.eecs.berkeley.edu/~aydin/sc11_bfs.pdf)
+
 # Closeness Centrality
 
 Closeness Centrality finds the most central node in a graph. It is very useful for analyzing large networks, such as social networks. 
@@ -85,7 +89,6 @@ For each node in a connected graph g, with starting vertex, s:
 3. 	If the sum is greater than 0 and the graph has more than 1 node, calculate closeness centrality by dividing the number of nodes by this sum. Otherwise, set the closeness measure for this node to 0. 
 
 The node with the smallest value is the most central. Because the algorithm must find the minimum path while visiting each node in the graph, the time complexity of this algorithm is O(n*m + n), where n represents total number of nodes, and m represents total number of edges.
-complexity source: https://arxiv.org/pdf/1706.02083.pdf
 
 ## Parallelization
 ### Parallelization with MPI
@@ -168,3 +171,10 @@ We then ran the code with 2-8 tasks/cores on two nodes to understand how increas
 
 We see from the plot above that we were able to achieve nearly linear speed up, as show below. This shows that increasing the number of cores does improve speed up.
 
+<a id="note3" href="#note3ref"><sup>3</sup></a>[A Faster Method to Estimate Closeness Centrality Ranking](https://arxiv.org/pdf/1706.02083.pdf)
+
+<a id="note3" href="#note3ref"><sup>3</sup></a>[A Faster Method to Estimate Closeness Centrality Ranking](https://arxiv.org/pdf/1706.02083.pdf)
+
+<a id="note4" href="#note4ref"><sup>4</sup></a>[An efficient Parallel Algorithm for Computing the Closeness Centrality in Social Networks](https://dl.acm.org/doi/pdf/10.1145/3287921.3287981?download=true)
+
+<a id="note3" href="#note3ref"><sup>3</sup></a>[Closeness Centrality (Centrality Measure)](https://www.geeksforgeeks.org/closeness-centrality-centrality-measure/)
