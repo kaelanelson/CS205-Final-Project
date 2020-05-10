@@ -42,10 +42,24 @@ All tests were run on AWS instance type **m4.2xlarge**, which was chosen because
 
 ## Configuration Instructions
 - A VPC was created in AWS for the instances, per the [CS205 Lab I7 Lab Instructions](https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf). 
+
 - The MPI port range was configured with the following commands:
-```export MPIR_CVAR_CH3_PORT_RANGE=10000:10100
-export MPICH_PORT_RANGE=10000:10100
-```
-- Number of OpenMP flags configured via `export OMP_NUM_THREADS=x`
-- MPI ran via `mpirun -np [num_nodes] -hosts [list of instances] ./jacobi1d [ncells] [nsteps] [fname]` 
+
+  ```
+  export MPICH_PORT_RANGE=10000:10100
+  export MPIR_CVAR_CH3_PORT_RANGE=10000:10100
+  ```
+- Number of OpenMP flags configured via:
+
+  ```
+  export OMP_NUM_THREADS=x
+  ```
+
+- In general, the number of distributed processes was configured via:
+
+  ```
+  mpirun -np [num_nodes] -hosts [list of instances] ./[program]
+  ```
+
+  
 
