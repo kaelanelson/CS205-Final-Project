@@ -8,7 +8,7 @@ For a graph, g, and starting node, s, the algorithm is as follows:
 2.	Create a queue, Q, that contains the next nodes to be visited. Assign the first node to be visited as s.
 3.	While Q is not empty: Access the first node in Q, erase it from Q, and  check if this node has already been visited, as marked in V. If not visited, add it to the end of Q, and mark as visited in V.
 
-Note: Print out order of traversal by printing out the next element at the front of Q
+Note: Print out order of traversal by printing out the next element at the front of Q. Time complexity of this algorithm is O(n + m), where n is the number of nodes and m is the number of edges in a graph.
 
 ## Parallelization
 
@@ -41,7 +41,12 @@ while(!Q.empty()){
 	}
 }
 ```
-Note that we included ```#pragma omp critical``` to indicate that each processor has a common queue or array and it locks it in, keeping a sort of global copy among all jobs. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
+Note that we included ```#pragma omp critical``` to indicate that each processor has a common queue or array and it locks it in, keeping a sort of global copy among all jobs. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. Time complexity of this algorithm is O((n+m)/c), where n is the number of nodes, m is the number of edges, and c is the number of cores/threads used.
+
+### Test Data
+
+
+### Results 
 
 ![](BFS_CC/bfs_omp_su.png)
 
@@ -56,13 +61,12 @@ For each node in a connected graph g, with starting vertex, s:
 1.	Find the minimum distances to all other nodes, or path, from s. Distance is calculated through a minimum spanning tree algorithm - we use prims algorithm. 
 2.	Sum all of these distances. 
 3. 	If the sum is greater than 0 and the graph has more than 1 node, calculate closeness centrality by dividing the number of nodes by this sum. Otherwise, set the closeness measure for this node to 0. 
-The node with the smallest value is the most central.
+The node with the smallest value is the most central. Because the algorithm must find the minimum path while visiting each node in the graph, the time complexity of this algorithm is O(n*m + n), where n represents total number of nodes, and m represents total number of edges.
+complexity source: https://arxiv.org/pdf/1706.02083.pdf
 
 ## Parallelization
 ### Parallelization with MPI
-Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prim?s algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minimum spanning path with MPI. We see below that speed up is nearly linear, which demonstrates how efficient MPI can coordinate communication and synchronization between processors.
-
-![](BFS_CC/cc_mpi_su.png)
+Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prims algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minimum spanning path with MPI. We see below that speed up is nearly linear, which demonstrates how efficient MPI can coordinate communication and synchronization between processors. The time complexity of this algorithm is O((n*m+n)/p) + O(n*m log p), where n is the number of nodes, m is the number of edges and p is the number of processors.
 
 ### Hybrid Parallelization with MPI and OpenMP
 We created the hybrid version with OpenMP that reduces execution time by first incorporating prims hybrid parallelization. Then, we focus on parallelizing the loop that goes through and sums the minimum distance from the source vertex and all other vertices (found from prims algorithm), as follows:
@@ -93,7 +97,16 @@ We created the hybrid version with OpenMP that reduces execution time by first i
     return p;
 ```
 
-We include execution times for different parallelization variations with OpenMP and MPI:
+### Test Data
+
+
+### Results
+
+#### MPI
+![](BFS_CC/cc_mpi_su.png)
+
+#### Hybrid
+We include execution times for different parallelization variations of hybrid parallelization using OpenMP and MPI:
 
 | Version | Description | Execution Time |
 |------------|----------------|-----------------------|
