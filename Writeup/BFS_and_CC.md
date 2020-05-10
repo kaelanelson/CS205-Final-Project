@@ -61,6 +61,7 @@ For each node in a connected graph g, with starting vertex, s:
 1.	Find the minimum distances to all other nodes, or path, from s. Distance is calculated through a minimum spanning tree algorithm - we use prims algorithm. 
 2.	Sum all of these distances. 
 3. 	If the sum is greater than 0 and the graph has more than 1 node, calculate closeness centrality by dividing the number of nodes by this sum. Otherwise, set the closeness measure for this node to 0. 
+
 The node with the smallest value is the most central. Because the algorithm must find the minimum path while visiting each node in the graph, the time complexity of this algorithm is O(n*m + n), where n represents total number of nodes, and m represents total number of edges.
 complexity source: https://arxiv.org/pdf/1706.02083.pdf
 
@@ -103,6 +104,17 @@ We created the hybrid version with OpenMP that reduces execution time by first i
 ### Results
 
 #### MPI
+
+| Version | Processors (#) | Speed. Up |
+|------------|---------------------|----------------|
+| MPI | 2 | 1.267 |
+| MPI | 3 | 1.478 |
+| MPI | 4 | 1.727 |
+| MPI | 5 | 1.899 |
+| MPI | 6 | 2.069 |
+| MPI | 7 | 2.288 |
+| MPI | 8 | 2.200 |
+
 ![](BFS_CC/cc_mpi_su.png)
 
 #### Hybrid
