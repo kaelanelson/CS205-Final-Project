@@ -58,9 +58,21 @@ The serial runtime for this algorithm is 0.024 seconds.
 
 ### Results 
 
+Speed up results are as follows
+
+| Version | Processors (#) | Speed Up |
+|------------|---------------------|----------------|
+| MPI | 2 | 1.279 |
+| MPI | 3 | 1.469 |
+| MPI | 4 | 1.603 |
+| MPI | 5 | 1.491 |
+| MPI | 6 | 1.459 |
+| MPI | 7 | 1.482 |
+| MPI | 8 | 1.285 |
+
 ![](BFS_CC/bfs_omp_su1.png)
 
-From the plot above, we see the speed up initially increases sharply when utilizing between 2 to 4 cores. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
+From the table and plot above, we see the speed up initially increases sharply when utilizing between 2 to 4 cores. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
 
 # Closeness Centrality
 
@@ -125,7 +137,7 @@ The serial runtime for this algorithm is 93.39 seconds.
 
 We ran this code with 2-8 tasks on two nodes and produced the speed up table and plot below.
 
-| Version | Processors (#) | Speed. Up |
+| Version | Processors (#) | Speed Up |
 |------------|---------------------|----------------|
 | MPI | 2 | 1.267 |
 | MPI | 3 | 1.478 |
