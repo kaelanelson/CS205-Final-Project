@@ -58,7 +58,7 @@ The serial runtime for this algorithm is 0.024 seconds.
 
 ### Results 
 
-![](BFS_CC/bfs_omp_su.png)
+![](BFS_CC/bfs_omp_su1.png)
 
 From the plot above, we see the speed up initially increases sharply when utilizing between 2 to 4 cores. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
 
