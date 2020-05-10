@@ -45,12 +45,22 @@ Note that we included ```#pragma omp critical``` to indicate that each processor
 
 ### Test Data
 
+We the bfs algorithm on all.edges - a file that combined all facebook edge files in the Stanford data set. The graph is formatted like so
+
+| vertex 1 | vertex 2 |
+|------- ---|------------|
+| 24 | 246 |
+| 176 | 9 |
+| 133 | 162 |
+
+The serial runtime for this algorithm is 0.024 seconds.
+
 
 ### Results 
 
 ![](BFS_CC/bfs_omp_su.png)
 
-From the plot above, we see that in general, speed up with open mp is high (remains between 11 -13.5). The speed up initially increases sharply when utilizing between 2 to 4 nodes. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
+From the plot above, we see the speed up initially increases sharply when utilizing between 2 to 4 cores. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
 
 # Closeness Centrality
 
@@ -99,11 +109,21 @@ We created the hybrid version with OpenMP that reduces execution time by first i
 ```
 
 ### Test Data
+Because closeness centrality is computationally expensive to run, for the purposes of testing, we ran this code on a subgraph of the graph used to test prims algorithm (mst_test3_sub.txt). The graph contains 500 nodes and is formatted like so
 
+| vertex 1 | vertex 2 | edge weight |
+|------- ---|------------|-----------|
+| 0 | 1 | 1 |
+| 1 | 2 | 1 |
+| 0 | 3 | 1 |
 
-### Results
+The serial runtime for this algorithm is 93.39 seconds.
+
+### Results 
 
 #### MPI
+
+We ran this code with 2-8 tasks on two nodes and produced the speed up table and plot below.
 
 | Version | Processors (#) | Speed. Up |
 |------------|---------------------|----------------|
@@ -118,7 +138,7 @@ We created the hybrid version with OpenMP that reduces execution time by first i
 ![](BFS_CC/cc_mpi_su.png)
 
 #### Hybrid
-We include execution times for different parallelization variations of hybrid parallelization using OpenMP and MPI:
+We ran the code with different parallelization variations of hybrid parallelization using OpenMP and MPI, found in the table below:
 
 | Version | Description | Execution Time |
 |------------|----------------|-----------------------|
@@ -126,8 +146,7 @@ We include execution times for different parallelization variations of hybrid pa
 | Single MPI task launched on each socket | 2 threads/task, 2 tasks/node | 41.9157 s |
 | No shared memory (all MPI) | 1 thread/task, 4 tasks/node | 44.5355 s |
 
-
-We also were able to achieve nearly linear speed up when we varied the number of tasks per node used (2 to 8) on 2 worker nodes.
+We ran the code with 2-8 tasks on two nodes, also were able to achieve nearly linear speed up, as show below.
 
 ![](BFS_CC/cch_su.png)
 
