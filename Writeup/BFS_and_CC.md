@@ -12,7 +12,7 @@ Note: Print out order of traversal by printing out the next element at the front
 
 ## Parallelization
 
-As described above, the BFS algorithm must keep track of which nodes were visited as it traverses through the tree, and it must keep a queue of nodes to visit next. It is possible to implement a distributed memory BFS, either by breaking the graph into subgraphs to send to processors, or by sending the vertices to different processors. The main challenge is understanding how to divide independent work to each processor, as BFS relies on its knowledge that it has visited a node and what is next to visit - both of which indicate it is a sequential-based algorithm. As a result, this synchronization of information is difficult to achieve. It is doable, however most sources dedicate a great deal of research and time for this one task. After many attempts and debugging efforts, we decided that for the scope of this project, we will focus on parallelizing BFS solely with open MP.
+As described above, the BFS algorithm must keep track of which nodes were visited as it traverses through the tree, and it must keep a queue of nodes to visit next. It is possible to implement a distributed memory BFS, either by breaking the graph into subgraphs to send to processors, or by sending the vertices to different processors. The main challenge is understanding how to divide independent work to each processor, as BFS relies on its knowledge that it has visited a node and what is next to visit - both of which indicate it is a sequential-based algorithm. As a result, this synchronization of information is difficult to achieve with MPI parallelization. It is doable, however most sources dedicate a great deal of research and time for this one task. After many attempts and debugging efforts, we decided that for the scope of this project, we will focus on parallelizing BFS solely with open MP.
 
 ### Parallelization with OpenMP 
 We were able to parallelize BFS with OpenMP, as follows:
@@ -48,7 +48,7 @@ Note that we included ```#pragma omp critical``` to indicate that each processor
 We the bfs algorithm on all.edges - a file that combined all facebook edge files in the Stanford data set. The graph is formatted like so
 
 | vertex 1 | vertex 2 |
-|------- ---|------------|
+|-----------|------------|
 | 24 | 246 |
 | 176 | 9 |
 | 133 | 162 |
@@ -112,7 +112,7 @@ We created the hybrid version with OpenMP that reduces execution time by first i
 Because closeness centrality is computationally expensive to run, for the purposes of testing, we ran this code on a subgraph of the graph used to test prims algorithm (mst_test3_sub.txt). The graph contains 500 nodes and is formatted like so
 
 | vertex 1 | vertex 2 | edge weight |
-|------- ---|------------|-----------|
+|-----------|------------|-----------|
 | 0 | 1 | 1 |
 | 1 | 2 | 1 |
 | 0 | 3 | 1 |
@@ -135,6 +135,8 @@ We ran this code with 2-8 tasks on two nodes and produced the speed up table and
 | MPI | 7 | 2.288 |
 | MPI | 8 | 2.200 |
 
+Note the speed up increases as the number of processors increases. We see below in the speed up plot that speed up with MPI is nearly linear, with a slight tick downwards from 7 to 8 cores. This shows that MPI is a powerful parallelization tool on an otherwise computationally expensive algorithm.
+
 ![](BFS_CC/cc_mpi_su.png)
 
 #### Hybrid
@@ -146,8 +148,11 @@ We ran the code with different parallelization variations of hybrid parallelizat
 | Single MPI task launched on each socket | 2 threads/task, 2 tasks/node | 41.9157 s |
 | No shared memory (all MPI) | 1 thread/task, 4 tasks/node | 44.5355 s |
 
-We ran the code with 2-8 tasks on two nodes, also were able to achieve nearly linear speed up, as show below.
+Note that these execution times are all almost half of the serial execution time of 93 seconds. Running the code with 4 threads/task, 1 task/node seemed to perform the best indicating that the algorithm responds better when utilizing more threads per task and less tasks per node. This makes sense, as load balancing varies between the many components of this algorithm.
+
+We then ran the code with 2-8 tasks/cores on two nodes to understand how increasing threads/task affects speed up.  
 
 ![](BFS_CC/cch_su.png)
 
+We see from the plot above that we were able to achieve nearly linear speed up, as show below. This shows that increasing the number of cores does improve speed up.
 
