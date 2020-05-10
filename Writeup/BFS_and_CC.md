@@ -13,8 +13,36 @@ Note: Print out order of traversal by printing out the next element at the front
 
 ## Parallelization
 
-### Parallelization with OpenMP 
+As described above, the BFS algorithm must keep track of which nodes were visited as it traverses through the tree, and it must keep a queue of nodes to visit next. It is possible to implement a distributed memory BFS, either by breaking the graph into subgraphs to send to processors, or by sending the vertices to different processors. The main challenge is understanding how to divide independent work to each processor, as BFS relies on its knowledge that it has visited a node and what is next to visit - both of which indicate it is a sequential-based algorithm. As a result, this synchronization of information is difficult to achieve. It is doable, however most sources dedicate a great deal of research and time for this one task. After many attempts and debugging efforts, we decided that for the scope of this project, we will focus on parallelizing BFS solely with open MP.
 
+### Parallelization with OpenMP 
+We were able to parallelize BFS with OpenMP, as follows:
+```c++
+while(!Q.empty()){
+		// pop off head of Q
+		#pragma omp critical
+		{
+		s = Q[0];
+		cout << s << " ";
+		Q.erase(Q.begin());
+		}
+
+		// mark and enqueue all unvisited neighbor nodes of s
+		#pragma omp parallel for
+		for (int i = 0; i < num_vertices; i++){
+			// if not visited, mark as true in visited,and push into queue
+			// else, do nothing
+			if (A[s][i] == 1 && (!visited[i])){
+				#pragma omp critical
+				{
+				visited[i] = true;
+				Q.push_back(i);
+				}
+			}
+		}
+	}
+```
+Note that we included ```#pragma omp critical``` to indicate that each processor has this common queue or array and it locks it in, keeping a sort of global copy for among all processors. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
 
 # Closeness Centrality
 
