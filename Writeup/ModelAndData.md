@@ -35,6 +35,6 @@ Our main test data, the ego-Facebook dataset, was obtained from the **[Stanford 
 135 30
 ```
 
-Each row holds a single edge between two nodes. In the example above, there are 5 edges and 8 nodes. The resulting graph could be represented visually as:
+Each row holds a single edge between two nodes. In the example above, there are 5 edges and 8 nodes. for the ego-Facebook dataset, the nodes (circles) would represent the id of a Facebook user. For example, User 285 is friends with three other users: 186, 176, and 108. The resulting graph could be represented visually as:
 
 ![graph](graph.png)
