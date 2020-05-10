@@ -42,7 +42,7 @@ while(!Q.empty()){
 	}
 }
 ```
-Note that we included ```c++ #pragma omp critical``` to indicate that each processor has this common queue or array and it locks it in, keeping a sort of global copy for among all processors. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
+Note that we included ```#pragma omp critical``` to indicate that each processor has this common queue or array and it locks it in, keeping a sort of global copy for among all processors. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
 
 # Closeness Centrality
 
