@@ -45,6 +45,8 @@ Note that we included ```#pragma omp critical``` to indicate that each processor
 
 ![](BFS_CC/bfs_omp_su.png)
 
+From the plot above, we see that in general, speed up with open mp is high (remains between 11 -13.5). The speed up initially increases sharply when utilizing between 2 to 4 nodes. This makes sense, because the serial time to compute will increase while parallel execution time will not be as high since parallelizing the loops will reduce time to compute. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.
+
 # Closeness Centrality
 
 Closeness Centrality finds the most central node in a graph. It is very useful for analyzing large networks, such as social networks. 
@@ -58,7 +60,7 @@ The node with the smallest value is the most central.
 
 ## Parallelization
 ### Parallelization with MPI
-Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prim?s algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minimum spanning path with MPI.
+Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prim?s algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minimum spanning path with MPI. We see below that speed up is nearly linear, which demonstrates how efficient MPI can coordinate communication and synchronization between processors.
 
 ![](BFS_CC/cc_mpi_su.png)
 
@@ -91,6 +93,8 @@ We created the hybrid version with OpenMP that reduces execution time by first i
     return p;
 ```
 
+We include execution times for different parallelization variations with OpenMP and MPI:
+
 | Version | Description | Execution Time |
 |------------|----------------|-----------------------|
 | Single MPI task launched per node | 4 threads/task, 1 task/node | 36.8606 s |
@@ -98,6 +102,8 @@ We created the hybrid version with OpenMP that reduces execution time by first i
 | No shared memory (all MPI) | 1 thread/task, 4 tasks/node | 44.5355 s |
 
 
-With this hybrid parallelization, we were able to achieve nearly linear speed up when we varied the number of tasks per node used (2 to 8) on 2 worker nodes.
+We also were able to achieve nearly linear speed up when we varied the number of tasks per node used (2 to 8) on 2 worker nodes.
 
 ![](BFS_CC/cch_su.png)
+
+
