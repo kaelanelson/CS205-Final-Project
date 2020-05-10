@@ -6,7 +6,8 @@ Breadth first search (BFS) is an algorithm that traverses trees or graph data st
 For a graph, g, and starting node, s, the algorithm is as follows:
 1.	Create an array, V, that records with nodes of g have been visited. Mark the entry at node s as visited.
 2.	Create a queue, Q, that contains the next nodes to be visited. Assign the first node to be visited as s.
-3.	While Q is not empty: Access the first node in Q, erase it from Q, and  check if this node has already been visited, as marked in V. If not visited, add it to the end of Q, and mark as visited in V
+3.	While Q is not empty: Access the first node in Q, erase it from Q, and  check if this node has already been visited, as marked in V. If not visited, add it to the end of Q, and mark as visited in V.
+
 Note: Print out order of traversal by printing out the next element at the front of Q
 
 ## Parallelization
@@ -42,6 +43,8 @@ while(!Q.empty()){
 ```
 Note that we included ```#pragma omp critical``` to indicate that each processor has a common queue or array and it locks it in, keeping a sort of global copy among all jobs. Although not the most efficient way to parallelize (some threads may remain idle), it is a more intuitive and simpler approach to reduce execution time. 
 
+![](BFS_CC/bfs_omp_su.png)
+
 # Closeness Centrality
 
 Closeness Centrality finds the most central node in a graph. It is very useful for analyzing large networks, such as social networks. 
@@ -56,6 +59,8 @@ The node with the smallest value is the most central.
 ## Parallelization
 ### Parallelization with MPI
 Closeness centrality algorithm was not designed to be computationally efficient on large graph structures because it requires visiting each node and find the minimum path. From our implementation of Prim?s algorithm, we can see that parallelization of this alone is a non-trivial task. Previous literature suggests that speed up is mainly achieved though parallelizing the minimum path algorithm used to find distance (prim?s algorithm in our case), and then using implementing a hybrid parallelization. Thus, for MPI parallelization of closeness centrality algorithm, we first use our MPI parallelized prims algorithm to first see how much it does speed up closeness centrality alone. See prims algorithm section for how we parallelized this minimum spanning path with MPI.
+
+![](BFS_CC/cc_mpi_su.png)
 
 ### Hybrid Parallelization with MPI and OpenMP
 We created the hybrid version with OpenMP that reduces execution time by first incorporating prims hybrid parallelization. Then, we focus on parallelizing the loop that goes through and sums the minimum distance from the source vertex and all other vertices (found from prims algorithm), as follows:
@@ -85,5 +90,14 @@ We created the hybrid version with OpenMP that reduces execution time by first i
         }
     return p;
 ```
-With this hybrid parallelization, we were able to achieve nearly linear speed up.
 
+| Version | Description | Execution Time |
+|------------|----------------|-----------------------|
+| Single MPI task launched per node | 4 threads/task, 1 task/node | 36.8606 s |
+| Single MPI task launched on each socket | 2 threads/task, 2 tasks/node | 41.9157 s |
+| No shared memory (all MPI) | 1 thread/task, 4 tasks/node | 44.5355 s |
+
+
+With this hybrid parallelization, we were able to achieve nearly linear speed up when we varied the number of tasks per node used (2 to 8) on 2 worker nodes.
+
+![](BFS_CC/cch_su.png)

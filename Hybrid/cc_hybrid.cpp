@@ -104,45 +104,26 @@ vector<int> prims(int s, int rank) {
 
     // create p: a list containing the path lengths from node s to all other nodes
     vector<int> p(num_vertices);
-    // if(rank==0){
     int summ = 0;
     int k = 0;
     #pragma omp parallel for private(k) shared(summ)
     for(int k=0; k < num_vertices-1; k++){
-
         int cr = row_ls[k];
         int cc = col_ls[k];
-
-        // if(rank==0){
-        // cout << "cr : " << cr << endl;
-        // cout << "cc : " << cc << endl;
-        // }
-        
         if(k == 0){ // if current node is the first node, add weight
-            // p[k] = A[cr][cc];
-            // cout << "index: "<< cr * num_vertices + cc << endl;
             p[k] = A[cr * num_vertices + cc];
-            // p[k] = A[cc * num_vertices + cr];
 
         }
-
         else if(cr == row_ls[0]){ // if current node is same as first node, add weight
-            // p[k] = A[cr][cc];
-            // cout << cr;
             p[k] = A[cr * num_vertices + cc];
-            // p[k] = A[cc * num_vertices + cr];
         }
 
         else if(cr == col_ls[k-1]){ 
-            // cout << cr;
-            // else, the current node is connected to the previous node -> sum up weights from path leading up to it
-            int pc = col_ls[k-1];
+             int pc = col_ls[k-1];
             summ = summ + A[cr * num_vertices + pc];
-            // summ = summ + A[pc * num_vertices + cr];
             p[k] = summ;
             }
         }
-        // }
     return p;
 
 }
@@ -160,11 +141,7 @@ void ClosenessCentrality(int maxId, int rank){
 
          // add up path distances to neighboring nodes
         int tot_sp = accumulate(sp.begin(), sp.end(), 0);
-        // if(rank==0){
-            // cout<<"tot sp: "<< tot_sp << endl;
-        // }
-        // calculate closeness
-        // not normalized 
+
         if(tot_sp>0 and num_vertices>1){
             if(rank==0)
             // nummber od nodes / sum of min paths
