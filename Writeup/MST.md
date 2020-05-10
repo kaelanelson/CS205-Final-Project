@@ -157,7 +157,7 @@ As with Prim's, I parallelized this algorithm as described by Vladimir Loncˇar,
 This algorithm is as follows:
 
 1. Assign each process an equal range of vertices. Send each process any edge that contains a vertex in its range.
-2. Each process uses Kruskal's algorithm to find the MST of its edges. Half of all processes send the edges in its tree, while half of all processes recieve the edges in another processes' tree. The sending processes can terminate.
+2. Each process uses Kruskal's algorithm to find the MST of its edges. Half of all processes send the edges in its tree, while half of all processes receive the edges in another processes' tree. The sending processes can terminate.
 3. Sort these edges again and perform Kruskal's algorithm.
 4. Continue doing this until only 1 process remains, which now has the MST.
 
