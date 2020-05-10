@@ -2,7 +2,7 @@
 
 ### Existing Work
 
-We are not the first to recognize the great need for parallel graph algorithms, and so there already exist many useful libraries for implementing parallel and distributed graph analytics. As data science students who were first introduced to parallel computing through this course, our goal was not to create a solution that would outperform these existing libraries. Rather, our focus was to gain more experience with course concepts and create programs that could serve as a foundation for such a library implementation. Nonetheless, in our tests we provide comparisons against existing frameworks.
+We are not the first to recognize the great need for parallel graph algorithms, and so there already exist many useful libraries for implementing parallel and distributed graph analytics. As data science students who were first introduced to parallel computing through this course, our goal was not to create a solution that would outperform these existing libraries. Rather, our focus was to gain more experience with course concepts and create programs that could serve as a foundation for such a library implementation.
 
 Below are a list of common libraries for parallel and distributed graph analytics. 
 
@@ -18,7 +18,7 @@ Because of the the various algorithms implemented, our application can be consid
 
 #### Levels of Parallelism
 
-The levels of parallelism are both coarse-grained and fine-grained. At the task level, we applied coarse-grained parallelism using MPI.  At the procedure and loop level, we applied fine-grained parallelism using OpenMP. (Justification???)
+The levels of parallelism are both coarse-grained and fine-grained. At the task level, we applied coarse-grained parallelism using MPI.  At the procedure and loop level, we applied fine-grained parallelism using OpenMP. While we originally planned on a hybrid MapReduce and MPI model, after gaining a deeper understanding of our algorithms and seeing that libraries such as the Parallel Boost Graph Library apply both coarse and fine-grained parallelism, we decided to use a hybrid MPI and OpenMP model. This will also allow us to offer significant improvements for users that do not have access to a distributed system by leveraging multi-threaded cores. 
 
 #### Types of Parallelism within Application
 
