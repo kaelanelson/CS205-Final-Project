@@ -8,7 +8,7 @@ For those unfamiliar with graphs, here are some terms we will be using throughou
 
 - **Node** **(or vertex)**: The fundamental unit of interest in a graph. For example, in a graph of the Facebook social network, the node is an individual person. 
 - **Edge:** The connection between two nodes. Also referred to as links or lines. In our Facebook example, we can think of two individuals who are friends as two nodes connected by an edge. 
-  - Edges can be **undirected** or **directed. **The example above describes an undirected edge. An example of directed edges would be links to and from web pages. Page *A* can link to page *B*, but that does not necessarily mean that page *B* links to page *A*.
+  - Edges can be **undirected** or **directed.** The example above describes an undirected edge. An example of directed edges would be links to and from web pages. Page *A* can link to page *B*, but that does not necessarily mean that page *B* links to page *A*.
   - Edges can have **weights** that describe the strength of the connection. For example, we might want to weigh the edge between two best friends who talk every day higher than acquaintances who only communicate once a year. 
 
 ### Challenges
