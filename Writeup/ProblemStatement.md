@@ -1,8 +1,8 @@
-## Problem Description
+# Problem
 
 Graph analytics, or network analysis, is an area of data analysis concerned with describing and investigating the relationships between data points. While many will think of its use for analysis of online social networks such as Facebook or Twitter, graph analytics can be used in a variety of domains: detecting fraud, identifying points of weakness in infrastructure networks like power or water grids, identifying key characters in narrative texts, analyzing road coverage, mapping the interaction between physiological systems like the heart and brain, etc. Thus, algorithms that create, traverse, and analyze graphs are helpful for a diverse set of problems.
 
-### Terms
+## Graph Terminology 
 
 For those unfamiliar with graphs, here are some terms we will be using throughout our writeup.
 
@@ -11,11 +11,11 @@ For those unfamiliar with graphs, here are some terms we will be using throughou
   - Edges can be **undirected** or **directed.** The example above describes an undirected edge. An example of directed edges would be links to and from web pages. Page *A* can link to page *B*, but that does not necessarily mean that page *B* links to page *A*.
   - Edges can have **weights** that describe the strength of the connection. For example, we might want to weigh the edge between two best friends who talk every day higher than acquaintances who only communicate once a year. 
 
-### Challenges
+## Challenges
 
 Despite the long history of graph theory and network analysis, there are still many challenges involved in carrying out graph analytics. One major challenge is that graph databases can be very large, on the order of millions of nodes and trillions of edges. We want to perform operations on these graphs quickly. Even smaller graphs, because of their representation and the computations involved, can result in non-trivial runtime for algorithms. Thus, runtimes may vary drastically depending on the representation of the graph. Additionally, some graph algorithms have runtime complexities on the order of high degree polynomial or exponential. Given the size of many graph databases, this can be incredibly slow, or potentially infeasible given limited resources.
 
-### Algorithms
+## Algorithms
 
 To investigate how parallel computing can solve these challenges, we picked seven important graph algorithms to parallelize. For more information on these algorithms, please see **Model and Data**.
 
