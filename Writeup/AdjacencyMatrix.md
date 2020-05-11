@@ -17,6 +17,8 @@ Adjacency matrix creation is a highly sequential task, as the majority of the wo
 
 To parallelize the adjacency matrix distribution, we used MPI. We first read in the file and initialized the matrix, then divided the matrix into p components (where p is the number of processes), and distributed each component to its corresponding process. 
 
+The speed up achieved for adjacency matrix distribution generally formed a linear relationship with the number of processes. The parallelization of this task resulted in performance improvements, although communication overhead created a bottleneck in some cases. The time complexity of this algorithm is O(n*n/p), where n is the number of nodes and p is the number of processes. 
+
 ```c++
 void distributeAdjacencyMatrix(int rank){
     MPI_Status status;

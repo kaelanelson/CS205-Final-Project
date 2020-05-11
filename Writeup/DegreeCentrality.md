@@ -14,7 +14,7 @@ Degree centrality for a node 's' represents the proportion of the graph that 's'
 
 To parallelize the degree centrality algorithm using MPI, we first made use of the parallel implementation of the adjacency matrix distribution. The adjacency matrix was divided into p components, where p is the number of processes, and these subsets of the adjacency matrix were distributed to their corresponding processes. We then computed degree centrality on the subset of nodes for each process. For a particular node, this calculated the ratio between the number of neighboring nodes and the total nodes in the graph. Speed up was mainly achieved by dividing up the adjacency matrix and running degree centrality on a subset of nodes in each process. Refer to the adjacency matrix section for details about how the adjacency matrix distribution was parallelized using MPI. 
 
-The speed up achieved for degree centrality generally demonstrated a linear relationship with the number of processes. We generally saw performance improvements with the parallelized version, although communication overhead proved to be a bottleneck in some cases. The time complexity of this algorithm O(n*n/p), where n is the number of nodes and p is the number of processes. 
+The speed up achieved for degree centrality generally demonstrated a linear relationship with the number of processes. We generally saw performance improvements with the parallelized version, although communication overhead proved to be a bottleneck in some cases. The time complexity of this algorithm is O(n*n/p), where n is the number of nodes and p is the number of processes. 
 
 ```c++
 void deg_centrality(int rank) {
@@ -69,4 +69,4 @@ As shown in the table above, the speed up generally increases as the number of p
 
 ![](AM_DEG/dc_speedup.png)
 
-The plot above shows that we have achieved a speed up that is approximately linear for degree centrality. As we increase the number of processes, we generally see performance improvements.
+The plot above shows that we have achieved a speed up that is approximately linear for the parallelized degree centrality algorithm. As we increase the number of processes, we generally see performance improvements.
