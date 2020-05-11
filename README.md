@@ -27,3 +27,15 @@ To investigate how parallel computing can solve these challenges, we picked seve
 ## How to Use
 
 For a complete list of instructions on how to use the programs found in this repository, please see [How To Run]() on the project website. 
+
+## Table of Contents
+1. [Problem Statement](/Writeup/ProblemStatement.md)
+2. [Solution](/Writeup/Solution.md)
+3. [Model and Data](/Writeup/ModelAndData.md)
+4. [Specs](/Writeup/Specs.md)
+5. [How To Run](/Writeup/HowToRun.md)
+6. [BFS](/Writeup/BFS.md)
+7. [Closeness Centrality](/Writeup/Closeness_Centrality.md)
+8. [MST Algorithms](/Writeup/MST.md)
+9. [Page Rank](/Writeup/PageRank.md)
+10. [Discussion](/Writeup/Discussion.md)
