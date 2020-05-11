@@ -4,9 +4,7 @@ Initially developed  at Google for ranking web pages and named after one of its 
 
 The algorithm leverages Markov Chains to calculate the probability of transitioning from one node to another. This transition probability can be thought of as the "importance" or "centrality" of a node.
 
-This implementation focused on undirected graphs and was adapted from lecture notes from Northeastern University written by Keshi Dai[^1].
-
-[1]: http://www.ccs.neu.edu/home/daikeshi/notes/PageRank.pdf	"PageRank Lecture Note"
+This implementation focused on undirected graphs and was adapted from lecture notes from Northeastern University written by Keshi Dai<sup>1</sup>.
 
 ## Sequential Algorithm
 
@@ -30,9 +28,7 @@ for (int i = 0; i < N; i++) {
 }
 ```
 
-There is another version of the algorithm that loops until matrix *B* converges by checking if the difference between the total PageRank values of the current iteration and of the previous iteration falls below some threshold epsilon[^2].
-
-[2]: https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp	"PageRank C++ Implementation Based on Joseph Khoury's 'How is it made? Google Search Engine' Expository Paper"
+There is another version of the algorithm that loops until matrix *B* converges by checking if the difference between the total PageRank values of the current iteration and of the previous iteration falls below some threshold epsilon<sup>2</sup>.
 
  Ideally, our library would allow users to define the stopping criteria of the PageRank function by number of steps or by a difference threshold epsilon. However, for the purpose of testing scalability with parallelization, we decided to focus on the number of steps criteria. Based on testing, this added TIME to the runtime. We kept the while loop instead of switching to a for loop to easily be able to change between the two criteria.
 
@@ -54,9 +50,7 @@ The vast majority of the runtime is spent performing matrix multiplication in th
 
 We can apply data parallelism by having each processor work on different rows of the matrix and then gathering the rows of the resulting matrix product.
 
-We decided to use `MPI_Scatter` to distribute the row partitions of the final product matrix *B* to each processor as it takes care of both send and receive calls. This divided the matrix evenly to each processor. Because this includes the root processor which already has the initialized matrix, we used a separate `MPI_Scatter` call with `MPI_IN_PLACE` as the receiving buffer[^3].
-
-[^3]: Interestingly enough, the matrix multiplication code provided in the MPI Hands-On GitHub does not take this into account and thus does not run. (At least, I was not able to get it to work without this added step.)
+We decided to use `MPI_Scatter` to distribute the row partitions of the final product matrix *B* to each processor as it takes care of both send and receive calls. This divided the matrix evenly to each processor. Because this includes the root processor which already has the initialized matrix, we used a separate `MPI_Scatter` call with `MPI_IN_PLACE` as the receiving buffer<sup>3</sup>.
 
  We also broadcast the transition matrix *T* to each processor. We could have also scattered the relevant rows of the transition matrix to each processor, but because the processors will only be reading and not writing to this matrix, broadcasting is sufficient. 
 
@@ -177,7 +171,7 @@ We first tested the MPI version with the following configurations and results be
 | 2         | 2                  | 4               | 77.467            | 3.67    |
 | 2         | 4                  | 8               | 42.042            | 6.77    |
 
-![FigureStrongScalingMPI](/home/pau/IACS/Spring2020/cs205/project/tests/FigureStrongScalingMPI.png)
+![FigureStrongScalingMPI](PR/FigureStrongScalingMPI.png)
 
 The results of the MPI only implementation performed slightly worse than expected by our speedup estimate of linear speedup, based on the theoretical speedup of matrix multiplication. The only configuration that reached this theoretical speedup was that of 2 instances and 1 core per instance (the orange point at 2 tasks.) All other speedups were between around 75% and 92% of the number of processes, suggesting overhead issues. However, because the two-instances configuration outperformed the one-instance configuration at the same number of processes, we do not think this is the result of communication overhead between difference machines. 
 
@@ -194,7 +188,7 @@ The hybrid implementation configurations and results are shown below. All config
 | 2         | 2                  | 2                | 8               | 39.946            | 7.13    |
 | 2         | 4                  | 2                | 16              | 40.286            | 7.07    |
 
-![FigureStrongScalingMPI_OMP](/home/pau/IACS/Spring2020/cs205/project/tests/FigureStrongScalingMPI_OMP.png)
+![FigureStrongScalingMPI_OMP](PR/FigureStrongScalingMPI_OMP.png)
 
 The performance for the hybrid PageRank implementation was more unexpected than that of the MPI implementation. From 1 to 4 total processes, the algorithm performed pretty much as expected: slightly worse than linear speedup. However, when using all four cores of an instance and both threads of each core, the speedup did not increase. The speedup was almost constant for both 1 and 2 instances, which once again suggests that communication between the instances is not the issue. We suspect that there might be a block keeping all 8 threads from running at once in a single instance. Or there might too much overhead for communication between threads. 
 
@@ -229,6 +223,12 @@ We tested weak scaling using MPI and the most promising MPI + OMP configuration 
 | 1912            | 284.623                   | 6.77                                | 7.13                                                  |
 | 4032            | 4579.097                  | 6.95                                | 7.06                                                  |
 
-![FigureWeakScaling](/home/pau/IACS/Spring2020/cs205/project/tests/FigureWeakScaling.png)
+![FigureWeakScaling](PR/FigureWeakScaling.png)
 
 Both parallelized implementations appear to scale fairly well with the problem sizes tested. Nonetheless, the two implementations had opposite trends: MPI + OMP decreased in speedup as the problem size grew while MPI actually increased slightly. However, we did not test larger problem sizes as testing the sequential version became incredibly time consuming and expensive. We are curious to see if these patterns holds for data with twice or four times as many nodes. 
+
+<a id="note1" href="#note1ref"><sup>1</sup></a>[PagRank Lecture Note](http://www.ccs.neu.edu/home/daikeshi/notes/PageRank.pdf)
+
+<a id="note2" href="#note2ref"><sup>2</sup></a>[PageRank C++ Implementation Based on Joseph Khoury's 'How is it made? Google Search Engine' Expository Paper](https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp)
+
+<sup>3</sup> Interestingly enough, [the matrix multiplication code provided in the MPI Hands-On GitHub](https://github.com/fasrc/User_Codes/blob/master/Courses/CS205/MPI_2020/Example4/mmult.c) does not take this into account and thus does not run. (At least, I was not able to get it to work without this added step.)
