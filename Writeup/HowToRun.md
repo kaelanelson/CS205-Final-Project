@@ -310,4 +310,55 @@ The output file location and name can be changed as in the sequential or MPI ver
 
 The number of convergence steps can be changed as in the sequential or MPI version as shown above.
 
-### 
+### Tests
+
+To reproduce our exact performance results, see [Specs](Specs.html) for our infrastructure specifications. Otherwise, you may run on your own cluster environment with relevant dependencies to compare. 
+
+#### Sequential
+
+You can run the sequential tests for all three files by following the compile directions for the sequential version above. Then run the following code. (Assuming the files are in the same directory as the executable file.) Please note that the 4032.edges file requires more than an hour to run sequentially on an AWS m4.2xlarge instance. 
+
+```
+./pagerank 344.edges 
+./pagerank 0_414.edges 
+./pagerank 4032.edges
+```
+
+#### MPI
+
+In the `Tests/` folder, we have provided three MPI PageRank programs already configured to the the correct number of nodes and to separate output files. Be sure to move the relevant files from the `/data/facebook` directory.  Follow the same instructions as shown above for MPI. The compile and run commands are shown below:
+
+```
+mpic++ pagerank_mpi_344.cpp -o pagerank_mpi_344
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_mpi_344 344.edges
+```
+
+```
+mpic++ pagerank_mpi_1912.cpp -o pagerank_mpi_1912
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_mpi_1912 1912.edges
+```
+
+```
+mpic++ pagerank_mpi_4032.cpp -o pagerank_mpi_4032
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_mpi_4032 4032.edges
+```
+
+#### MPI + OpenMP
+
+In the `Tests/` folder, we have also provided three MPI PageRank programs already configured to the the correct number of nodes and to separate output files. Follow the same instructions as shown above for MPI + OpenMP. Be sure to move the relevant files from the `/data/facebook` directory. The compile and run commands are shown below:
+
+```
+mpic++ pagerank_hybrid_344.cpp -o pagerank_hybrid_344
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_hybrid_344 344.edges
+```
+
+```
+mpic++ pagerank_hybrid_1912.cpp -o pagerank_hybrid_1912
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_hybrid_1912 0_414.edges
+```
+
+```
+mpic++ pagerank_hybrid_4032.cpp -o pagerank_hybrid_4032
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_hybrid_4032 4032.edges
+```
+

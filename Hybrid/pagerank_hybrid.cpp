@@ -11,8 +11,10 @@ https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp */
 
 using namespace std;
 
-#define totalSteps 5 /* Set this when running! */
-#define numVertices 1912 /* Set this when running!*/
+#define numVertices 8 /* Set this when running!*/
+
+int totalSteps = 5; /* Change if you want to run for more steps for better convergence. */
+string outfileName = "pagerankOutput.txt"; /* Change file name. */
 
 double adjMatrix[numVertices][numVertices], currentMatrix[numVertices][numVertices], transMatrix[numVertices][numVertices], nextMatrix[numVertices][numVertices];
 double damping = 0.85;
@@ -179,16 +181,18 @@ int main(int argc, char *argv[]) {
     tend = MPI_Wtime();
 
     if (rank == 0) {
-        printf("\n\n");
+		/* Print output to file. */
+		ofstream outfile;
+		outfile.open(outfileName);
 
 		double	rank[numVertices];
 		int	vertex[numVertices];
-		for (j = 0; j < numVertices; j++) {
+		for (int j = 0; j < numVertices; j++) {
 			vertex[j] = j;
-			rank[j] = nextMatrix[0][j]; 
+			rank[j] = currentMatrix[0][j]; 
 			}
-		for (j = 0; j < numVertices; j++) cout << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
-    
+		for (int j = 0; j < numVertices; j++) outfile << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
+		outfile.close();     
 		printf("Elapsed time: %g s\n", tend-tstart);
     }
 
