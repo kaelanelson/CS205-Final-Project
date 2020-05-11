@@ -4,7 +4,7 @@ Initially developed  at Google for ranking web pages and named after one of its 
 
 The algorithm leverages Markov Chains to calculate the probability of transitioning from one node to another. This transition probability can be thought of as the "importance" or "centrality" of a node.
 
-This implementation focused on undirected graphs and was adapted from lecture notes from Northeastern University written by Keshi Dai.
+This implementation focused on undirected graphs and was adapted from lecture notes from Northeastern University written by Keshi Dai[^1].
 
 [1]: http://www.ccs.neu.edu/home/daikeshi/notes/PageRank.pdf	"PageRank Lecture Note"
 
@@ -30,15 +30,23 @@ for (int i = 0; i < N; i++) {
 }
 ```
 
-There is another version of the algorithm that loops until matrix *B* converges by checking if the difference between the total PageRank values of the current iteration and of the previous iteration falls below some threshold epsilon.
+There is another version of the algorithm that loops until matrix *B* converges by checking if the difference between the total PageRank values of the current iteration and of the previous iteration falls below some threshold epsilon[^2].
 
 [2]: https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp	"PageRank C++ Implementation Based on Joseph Khoury's 'How is it made? Google Search Engine' Expository Paper"
 
  Ideally, our library would allow users to define the stopping criteria of the PageRank function by number of steps or by a difference threshold epsilon. However, for the purpose of testing scalability with parallelization, we decided to focus on the number of steps criteria. Based on testing, this added TIME to the runtime. We kept the while loop instead of switching to a for loop to easily be able to change between the two criteria.
 
-The sequential algorithm has a time complexity of O(EV). 
+The sequential algorithm has a time complexity of O(EN) where E is the number of edges and N is the number of nodes. 
 
-(Problem size graph.)
+To give a sense for how the time complexity of this algorithm can blow up even with just a linear increase in nodes, see the table below.
+
+| Name        | Edges  | Nodes | Size     |
+| ----------- | ------ | ----- | -------- |
+| 344.edges   | 4928   | 344   | 36.4 kB  |
+| 0_414.edges | 68306  | 1912  | 639.3 kB |
+| 4032.edges  | 170142 | 4032  | 1.6 MB   |
+
+The number of edges can increase at a much faster rate than the number of nodes. 
 
 ## Parallelization with MPI
 
@@ -46,7 +54,7 @@ The vast majority of the runtime is spent performing matrix multiplication in th
 
 We can apply data parallelism by having each processor work on different rows of the matrix and then gathering the rows of the resulting matrix product.
 
-We decided to use `MPI_Scatter` to distribute the row partitions of the final product matrix *B* to each processor as it takes care of both send and receive calls. This divided the matrix evenly to each processor. Because this includes the root processor which already has the initialized matrix, we used a separate `MPI_Scatter` call with `MPI_IN_PLACE` as the receiving buffer.
+We decided to use `MPI_Scatter` to distribute the row partitions of the final product matrix *B* to each processor as it takes care of both send and receive calls. This divided the matrix evenly to each processor. Because this includes the root processor which already has the initialized matrix, we used a separate `MPI_Scatter` call with `MPI_IN_PLACE` as the receiving buffer[^3].
 
 [^3]: Interestingly enough, the matrix multiplication code provided in the MPI Hands-On GitHub does not take this into account and thus does not run. (At least, I was not able to get it to work without this added step.)
 
@@ -147,3 +155,80 @@ do	{
 Throughout the program, we perform quite a number of matrix initializations and matrix by scalar multiplications that could also have been easily parallelized with the `#pragma omp parallel for` directive. This was not done in this first hybrid implementation as these initializations were very quick relative to the rest of the program. However, this leaves the possibility of even more speedup with MPI + OpenMP. 
 
 ## Performance Evaluation
+
+### Note about m4.2xlarge Instance
+
+The m4.2xlarge instance has 8 total vCPUs made up of four cores with two threads each. 
+
+### Strong Scaling
+
+Strong scaling was tested on two AWS m4.2xlarge instances using a subset of the ego-Facebook edges files. This file was created by concatenating the 0.edges, 107.edges, 348.edges, and 414.edges files into a new 0_414.edges file. This resulted in a file with 68306 edges and 1912 nodes. 
+
+#### MPI
+
+We first tested the MPI version with the following configurations and results below.
+
+| Instances | Cores per Instance | Total Processes | Runtime (seconds) | Speedup |
+| --------- | ------------------ | --------------- | ----------------- | ------- |
+| 1         | 1                  | 1 (Sequential)  | 284.623           | N/A     |
+| 1         | 2                  | 2               | 154.760           | 1.84    |
+| 1         | 4                  | 4               | 95.100            | 2.99    |
+| 2         | 1                  | 2               | 144.101           | 1.98    |
+| 2         | 2                  | 4               | 77.467            | 3.67    |
+| 2         | 4                  | 8               | 42.042            | 6.77    |
+
+![FigureStrongScalingMPI](/home/pau/IACS/Spring2020/cs205/project/tests/FigureStrongScalingMPI.png)
+
+The results of the MPI only implementation performed slightly worse than expected by our speedup estimate of linear speedup, based on the theoretical speedup of matrix multiplication. The only configuration that reached this theoretical speedup was that of 2 instances and 1 core per instance (the orange point at 2 tasks.) All other speedups were between around 75% and 92% of the number of processes, suggesting overhead issues. However, because the two-instances configuration outperformed the one-instance configuration at the same number of processes, we do not think this is the result of communication overhead between difference machines. 
+
+#### Hybrid: MPI + OpenMP
+
+The hybrid implementation configurations and results are shown below. All configurations used two threads per core. As noted before, each core in an m4.2xlarge instance has two threads, which limited the scaling up of threads. Speedup is calculating using the sequential runtime from the table above.
+
+| Instances | Cores per Instance | Threads per Core | Total Processes | Runtime (seconds) | Speedup |
+| --------- | ------------------ | ---------------- | --------------- | ----------------- | ------- |
+| 1         | 1                  | 2                | 2               | 155.989           | 1.82    |
+| 1         | 2                  | 2                | 4               | 79.800            | 3.56    |
+| 1         | 4                  | 2                | 8               | 80.010            | 3.56    |
+| 2         | 1                  | 2                | 4               | 75.329            | 3.78    |
+| 2         | 2                  | 2                | 8               | 39.946            | 7.13    |
+| 2         | 4                  | 2                | 16              | 40.286            | 7.07    |
+
+![FigureStrongScalingMPI_OMP](/home/pau/IACS/Spring2020/cs205/project/tests/FigureStrongScalingMPI_OMP.png)
+
+The performance for the hybrid PageRank implementation was more unexpected than that of the MPI implementation. From 1 to 4 total processes, the algorithm performed pretty much as expected: slightly worse than linear speedup. However, when using all four cores of an instance and both threads of each core, the speedup did not increase. The speedup was almost constant for both 1 and 2 instances, which once again suggests that communication between the instances is not the issue. We suspect that there might be a block keeping all 8 threads from running at once in a single instance. Or there might too much overhead for communication between threads. 
+
+#### MPI vs. MPI + OMP
+
+One of the reasons for implementing parallelism at a fine-grained level using OpenMP was to see if we could get comparable performance for configurations of one instance to those of two instances using only MPI. 
+
+| Version   | Instances | Cores per Instance | Threads per Core | Total Processes | Speedup |
+| --------- | --------- | ------------------ | ---------------- | --------------- | ------- |
+| MPI       | 2         | 2                  | 1                | 4               | 3.67    |
+| MPI + OMP | 1         | 2                  | 2                | 4               | 3.56    |
+| MPI       | 2         | 4                  | 1                | 8               | 6.77    |
+| MPI + OMP | 2         | 2                  | 2                | 8               | 7.13    |
+
+As shown in the table above, a user with only 1 instance using the MPI + OMP hybrid implementation can, for the same number of total processes, can expect speedup less than, but comparable to that of the MPI implementation with 2 instances. For 4 total processes, the MPI + OMP configuration has 97% of the speedup of the MPI version. Meanwhile, for 8 total processes, the MPI + OMP configuration has 94% o fthe speedup of the MPI version. 
+
+### Weak Scaling
+
+Weak scaling was tested on one AWS m4.2xlarge instance on three different sized subsets of the ego-Facebook dataset. The first and third files were subset from the ego-Facebook files to ensure that the number of nodes was divisible by 4. The 4032.edges file holds almost all the nodes from the original dataset: it is missing only 7. The sizes of the datasets are shown below.
+
+| File Name   | Edges  | Nodes | Size     |
+| ----------- | ------ | ----- | -------- |
+| 344.edges   | 4928   | 344   | 36.4 kB  |
+| 0_414.edges | 68306  | 1912  | 639.3 kB |
+| 4032.edges  | 170142 | 4032  | 1.6 MB   |
+
+We tested weak scaling using MPI and the most promising MPI + OMP configuration for 8 total processes. We'd like to draw attention to the runtime of the sequential version with 4032: it took 16 times longer to run than for a file for which it was only twice as large. 
+
+| Number of Nodes | Sequential Time (seconds) | Speedup: MPI (2 instances, 4 nodes) | SpeedUP: MPi + OMP (2 processors, 2 nodes, 2 threads) |
+| --------------- | ------------------------- | ----------------------------------- | ----------------------------------------------------- |
+| 344             | 0.976                     | 6.62                                | 7.39                                                  |
+| 1912            | 284.623                   | 6.77                                | 7.13                                                  |
+| 4032            | 4579.097                  | 6.95                                | 7.06                                                  |
+
+![FigureWeakScaling](/home/pau/IACS/Spring2020/cs205/project/tests/FigureWeakScaling.png)
+
+Both parallelized implementations appear to scale fairly well with the problem sizes tested. Nonetheless, the two implementations had opposite trends: MPI + OMP decreased in speedup as the problem size grew while MPI actually increased slightly. However, we did not test larger problem sizes as testing the sequential version became incredibly time consuming and expensive. We are curious to see if these patterns holds for data with twice or four times as many nodes. 
