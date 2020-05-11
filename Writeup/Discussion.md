@@ -21,7 +21,7 @@ The parallelizability of the closeness centrality algorithm relied heavily on th
 
 The parallelizability of the bfs algorithm proved a more difficult task than initially anticipated. This largely due to the sequential nature of bfs, as it traverses through the graph. After looking at many sources and trying to implement MPI parallelization, we were unable to achieve a successful result. However, we were able to parallelize with OpenMP, which enabled us to to keep the visited and queue the same among all threads with the command ```pragma omp critical```. From this parallelization, we initially achieved a max speed up of 1.603 with 4 cores. However, there is a slight slowdown in speed up after 4 cores. We may see this because eventually the parallelized code will reach maximum speed up, i.e. more points to each processor slows it down. In addition, the time for each processor to communicate to each other increases, and synchronization overhead may increase.Perhaps if we used a larger data set, the overheads would be a lesser fraction of the overall time and speedups would be greater.
 
-#### General MST Discussion
+#### General Discussion
 
 As is the case in a more general sense, the extent to which a given algorithm can be parallelized differs drastically, and as such, adopting a hybrid approach is preferred, which allows for flexibility. I'd generally say that with the exception of VERY dense networks, an algorithm which operates on adjacency matrices is preferred, and this is visible from the comparable performance of Prim's vs Kruskal's.
 
