@@ -106,7 +106,10 @@ mpirun -np 4 -hosts master,node1 ./kruskals_hybrid generatedMstDataKruskals.txt
 
 ## BFS Algorithm
 
-Data file must be adjacency list in the format  `v1 v2`
+Data file must be adjacency list in the format  `v1 v2`. 
+
+Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I6/guide/Guide_I6.pdf
+Tested sequential version on the master node of this cluster as well.
 
 ### Sequential
 ```bash
@@ -115,9 +118,6 @@ time ./bfs all.edges
 ```
 
 ### OpenMP
-
-Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I6/guide/Guide_I6.pdf
-
 
 ```bash
 export OMP_NUM_THREADS=x
