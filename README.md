@@ -38,4 +38,6 @@ For a complete list of instructions on how to use the programs found in this rep
 7. [Closeness Centrality](/Writeup/Closeness_Centrality.md)
 8. [MST Algorithms](/Writeup/MST.md)
 9. [Page Rank](/Writeup/PageRank.md)
-10. [Discussion](/Writeup/Discussion.md)
+10. [Adjacency Matrix](/AdjacencyMatrix.md)
+11. [Degree Centrality](/Writeup/DegreeCentrality.md)
+12. [Discussion](/Writeup/Discussion.md)
