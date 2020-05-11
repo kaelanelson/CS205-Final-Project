@@ -14,21 +14,21 @@ Degree centrality for a node 's' represents the proportion of the graph that 's'
 
 ```c++
 void deg_centrality(int rank) {
-MPI_Barrier(MPI_COMM_WORLD);
-for (int i = row_offset; i < (nper+row_offset); i++) {
-DegCent degCent;
-degCent.v = i;
-int sum = 0;
-for (int j = 0; j < num_vertices; j++) {
-if(A[i * num_vertices + j] == 1)
-sum++;
-}
-degCent.deg = (double) sum / (num_vertices - 1);
-MPI_Bcast(&degCent, 1, MPI_DOUBLE_INT, rank, MPI_COMM_WORLD);
-if (rank==0){
-cout << degCent.v << "\t" << degCent.deg << endl;
-}
-}
+    MPI_Barrier(MPI_COMM_WORLD);
+    for (int i = row_offset; i < (nper+row_offset); i++) {
+        DegCent degCent;
+        degCent.v = i;
+        int sum = 0;
+        for (int j = 0; j < num_vertices; j++) {
+            if(A[i * num_vertices + j] == 1)
+                sum++;
+        }
+        degCent.deg = (double) sum / (num_vertices - 1);
+        MPI_Bcast(&degCent, 1, MPI_DOUBLE_INT, rank, MPI_COMM_WORLD);
+        if (rank==0){
+            cout << degCent.v << "\t" << degCent.deg << endl;
+        }
+    }
 }
 ```
 
@@ -53,16 +53,16 @@ This code was executed on an MPI cluster, with 2-8 tasks on 2 nodes. The speed u
 
 | Version | Processors (#) | Speed Up |
 |------------|---------------------|----------------|
-| MPI | 2 | 0.59358254 |
-| MPI | 3 | 1.07558444 |
-| MPI | 4 | 1.13407759 |
-| MPI | 5 | 1.46078934 |
-| MPI | 6 | 1.76326531 |
-| MPI | 7 | 2.17697385 |
-| MPI | 8 | 2.4842615 |
+| MPI | 2 | 0.78269877 |
+| MPI | 3 | 0.88990459 |
+| MPI | 4 | 1.53919091 |
+| MPI | 5 | 2.26431284 |
+| MPI | 6 | 2.48892393 |
+| MPI | 7 | 2.84767992 |
+| MPI | 8 | 3.01109434 |
 
-As shown in the table above, the speed up generally increases as the number of processors increases. Notice that the speed up is below 1.0 for 2 processes, which is likely due to the communication and synchronization overhead. This demonstrates that MPI was fairly successful at parallelizing the algorithm. We can see in the plot below that generally the speed up increases linearly with the number of processes. 
+As shown in the table above, the speed up generally increases as the number of processors increases. Notice that the speed up is below 1.0 for 2 and 3 processes, which is likely due to the communication and synchronization overhead. MPI was fairly successful at parallelizing the algorithm based on these speed ups. In the plot below, we can see that the speed up generally increases linearly with the number of processes. 
 
 ![](AM_DEG/dc_speedup.png)
 
-The plot above shows that we have acheived a speed up that is approximately linear. As we increase the number of processes, we do generally improve performance.
+The plot above shows that we have acheived a speed up that is approximately linear for degree centrality. As we increase the number of processes, we generally see performance improvements.
