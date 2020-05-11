@@ -11,7 +11,7 @@ https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp */
 
 using namespace std;
 
-#define numVertices 8 /* Set this when running!*/
+#define numVertices 4032
 
 double adjMatrix[numVertices][numVertices], currentMatrix[numVertices][numVertices], transMatrix[numVertices][numVertices], nextMatrix[numVertices][numVertices];
 double damping = 0.85;
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 
     MPI_Bcast (transMatrix, numVertices*numVertices, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    if(rank == 0){
+    if( rank == 0){
         MPI_Scatter (currentMatrix, numVertices*numVertices/size, MPI_DOUBLE, MPI_IN_PLACE, numVertices*numVertices/size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     }
     else {

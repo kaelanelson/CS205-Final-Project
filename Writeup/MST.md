@@ -95,21 +95,37 @@ int i = 0;
  
 
 ### Discussion
+
+**NOTE:** Data for prims algorithm testing purposes was generated via the script `generate_mst_data.py`. This was done because the facebook dataset from the Stanford Large Network Dataset Collection does not actually contain snapping trees, instead containing a number of distinct forests. I thus generated data such that a MST was guaranteed to exist. 
+
+The Prims dataset contains 1000 vertices and 11000 edges.
+
 All timing was done on m4.xlarge instances using either MPI_Time or ctime. Please see specs section for reproducibility section.
 
 
 | Version | Time   | Servers   | MPI Processes per Server  | OpenMP Threads  | Speedup|
 |---|---|---|---|---|---|
-| Sequential  |  2.79613 s |  N/A | N/A  | N/A|N/A|
-| MPI| 2.30927 s | 1| 1| N/A|1.21|
-| MPI | 1.19981 s| 1| 2| N/A|2.33|
-| MPI | 1.28366 s| 2| 1| N/A|2.18|
-| MPI | 0.745341 s| 2| 2| N/A|3.75|
-| MPI | 0.702907 s| 2| 4| N/A|3.98|
-| Hybrid | 0.992064 s|2 | 1 | 1|2.82|
-| Hybrid | 0.686465 s|2 | 1 | 2|4.07|
-| Hybrid | 0.614535 s|2 | 2 | 2|4.54|
+| Sequential  | 2.79959 |  N/A | N/A  | N/A|N/A|
+| MPI| 2.32824 s s | 1| 1| N/A|1.20|
+| MPI | 1.20708 s | 1| 2| N/A|2.32|
+| MPI | 1.28398 s | 2| 1| N/A|2.18|
+| MPI | 0.705264 s | 2| 2| N/A|3.97|
+| MPI | 0.446156 s | 2| 4| N/A|6.27|
+| Hybrid | 1.02302 s |2 | 1 | 1| 2.73    |
+| Hybrid | 0.564571 s |2 | 1 | 2|4.95|
+| Hybrid | 0.350572 s |2 | 1 | 4|7.98|
 
+#### MPI Speedup Plot
+
+![prims_hybrid](./MST/prims_mpi.png)
+
+It seems as though w/ MPI, speedup scales more or less linearly, until a certain point where the parallel overhead of distributing the adjacency matrix overcomes the benefit from adding another process.
+
+#### Hybrid Speedup Plot
+
+![prims_hybrid](./MST/prims_hybrid.png)
+
+Similarly, adding MPI threads scales speedup linearly before leveling off, again, because of overheads.
 
 
 <a id="note1" href="#note1ref"><sup>1</sup></a>[Parallelization of Minimum Spanning Tree Algorithms Using Distributed Memory Architectures](http://www.scl.rs/papers/Loncar-TET-Springer.pdf)
@@ -141,7 +157,7 @@ As with Prim's, I parallelized this algorithm as described by Vladimir Loncˇar,
 This algorithm is as follows:
 
 1. Assign each process an equal range of vertices. Send each process any edge that contains a vertex in its range.
-2. Each process uses Kruskal's algorithm to find the MST of its edges. Half of all processes send the edges in its tree, while half of all processes recieve the edges in another processes' tree. The sending processes can terminate.
+2. Each process uses Kruskal's algorithm to find the MST of its edges. Half of all processes send the edges in its tree, while half of all processes receive the edges in another processes' tree. The sending processes can terminate.
 3. Sort these edges again and perform Kruskal's algorithm.
 4. Continue doing this until only 1 process remains, which now has the MST.
 
@@ -255,24 +271,38 @@ Given that the bulk of Kruskal's algorithm operates on a sorted list, and proces
    
 
 ### Discussion
-All timing was done on m4.xlarge instances using either MPI_Time or ctime. 
-
+All timing was done on m4.2xlarge instances using either MPI_Time or ctime. 
 
 Please see specs section for reproducibility information.
 
+**NOTE:** As with Prim's, I've generated data here that insures that a MST exists. Kruskal's is generally FAR more performant than Prim's, given the ease in communication of edges vs the whole adjacency matrix. The data here consists of 1100000 edges between 100000 vertices, resulting in a datafile that is 133x the size of the Prim's test file.
+
 I've also calculated speedup, where speedup is the ratio of serial time to parallel time.
 
-| Version | Time| Servers|MPI Processes per Server|OpenMP Threads |Speedup|
-|---|---|---|---|---|---|
-| Sequential  |  0.683828 s |  N/A | N/A  | N/A|
-| MPI| 0.299881 s | 1| 1| N/A|2.28|
-| MPI | 0.256351 s| 1| 2| N/A| 2.67|
-| MPI | 0.259624 s| 2| 1| N/A|2.63|
-| MPI | 0.250793 s| 2| 2| N/A|2.73|
-| MPI | 0.356095 s| 2| 4| N/A|1.92|
-| Hybrid | 0.258826 s|2 | 1 | 1|2.64|
-| Hybrid | 0.258271 s|2 | 1 | 2|2.65|
-| Hybrid | 0.258216 s|2 | 2 | 2|2.65|
+| Version    | Time       | Servers | MPI Processes per Server | OpenMP Threads | Speedup |
+| ---------- | ---------- | ------- | ------------------------ | -------------- | ------- |
+| Sequential | 0.301909s  | N/A     | N/A                      | N/A            | N/A     |
+| MPI        | 0.29962 s  | 1       | 1                        | N/A            | 1.01    |
+| MPI        | 0.25523 s  | 1       | 2                        | N/A            | 1.18    |
+| MPI        | 0.258396   | 2       | 1                        | N/A            | 1.17    |
+| MPI        | 0.228452 s | 2       | 2                        | N/A            | 1.32    |
+| MPI        | 0.199488 s | 2       | 4                        | N/A            | 1.51    |
+| Hybrid     | 0.256522 s | 2       | 1                        | 1              | 1.17    |
+| Hybrid     | 0.255494 s | 2       | 1                        | 2              | 1.18    |
+| Hybrid     | 0.24757 s  | 2       | 1                        | 4              | 1.22    |
+
+#### MPI Speedup Plot
+
+![kruskals_mpi](./MST/kruskals_mpi.png)
+
+It seems as though w/ MPI, speedup scales more or less linearly, until a certain point where the parallel overhead of distributing the adjacency matrix overcomes the benefit from adding another process.
+
+#### Hybrid Speedup Plot
+
+![kruskals_hy](./MST/kruskals_hy.png)
+
+However, adding MPI threads does not have a substantial impact on performance. This is because there is not a huge potential for Shared-memory parallel progamming with Kruskal's algorithm, as works in a very sequential manner, iterating over each edge by weight. This core loop cannot be parallelized. I also think that perhaps the test file I was using was too small, and that retesting on a massive file may have yielded more productive results, as perhaps a good majority of the time I was capturing was overhead.
+
 
 <a id="note3" href="#note3ref"><sup>3</sup></a>[Kruskal’s Minimum Spanning Tree using STL in C++](https://www.geeksforgeeks.org/kruskals-minimum-spanning-tree-using-stl-in-c/)
 

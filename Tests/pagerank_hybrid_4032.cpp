@@ -11,11 +11,16 @@ https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp */
 
 using namespace std;
 
-#define numVertices 8 /* Set this when running!*/
+#define numVertices 4032 /* Set this when running!*/
+
+int totalSteps = 5; /* Change if you want to run for more steps for better convergence. */
+string outfileName = "pagerankOutputHybrid_4032.txt"; /* Change file name. */
 
 double adjMatrix[numVertices][numVertices], currentMatrix[numVertices][numVertices], transMatrix[numVertices][numVertices], nextMatrix[numVertices][numVertices];
 double damping = 0.85;
 double squareDiff, prevDiff, currentDiff = 0.0;
+int i, j, k;
+double sum;
 
 void addEdge(int i, int j);
 
@@ -32,7 +37,7 @@ void initializeMatrixPower();
 void printMatrixPower();
 
 void printMatrix(double matrix[numVertices][numVertices]) {
-    int i, j = 0;
+    i, j = 0;
     for (i=0; i<numVertices; i++) {
         printf("\n\t| ");
         for (j=0; j<numVertices; j++)
@@ -84,8 +89,8 @@ int main(int argc, char *argv[]) {
 
 
 	/* Initialize adjacency matrix */
-	for (int i = 0; i < numVertices; i++) {
-		for (int j = 0; j < numVertices; j++)
+	for (i = 0; i < numVertices; i++) {
+		for (j = 0; j < numVertices; j++)
 			adjMatrix[i][j] = 0;
 	}
 
@@ -103,20 +108,20 @@ int main(int argc, char *argv[]) {
 	tstart = MPI_Wtime();
 
 	/* Initialize transition matrix */
-	for (int i = 0; i < numVertices; i++) {
-		for (int j = 0; j < numVertices; j++)
+	for (i = 0; i < numVertices; i++) {
+		for (j = 0; j < numVertices; j++)
 			transMatrix[i][j] = 0;
 	}
 
 	/* Initialize current matrix for matrix power*/
-	for (int i = 0; i < numVertices; i++) {
-		for (int j = 0; j < numVertices; j++)
+	for (i = 0; i < numVertices; i++) {
+		for (j = 0; j < numVertices; j++)
 			currentMatrix[i][j] = 0;
 	}
 
 	/* Initialize next matrix. */
-	for (int i = 0; i < numVertices; i++) {
-		for (int j = 0; j < numVertices; j++)
+	for (i = 0; i < numVertices; i++) {
+		for (j = 0; j < numVertices; j++)
 			nextMatrix[i][j] = 0;
 	}
 
@@ -145,17 +150,19 @@ int main(int argc, char *argv[]) {
 
     printf("computing slice %d (from row %d to %d)\n", rank, from, to-1);
 
-    for (int i = from; i < to; i++) 
-        for (int j = 0; j < numVertices; j++) {
+    # pragma omp parallel for
+    for (i = from; i < to; i++) 
+        for (j = 0; j < numVertices; j++) {
             nextMatrix[i][j] = currentMatrix[i][j];
         }
 
     int step = 0; 
 	do	{
-	    for (int i = from; i < to; i++) 
-	        for (int j = 0; j < numVertices; j++) {
-	        	double sum = 0.0;
-	            for (int k = 0; k < numVertices; k++){
+		# pragma omp parallel for private(j, k, sum)
+	    for (i = from; i < to; i++) 
+	        for (j = 0; j < numVertices; j++) {
+	        	sum = 0.0;
+	            for (k = 0; k < numVertices; k++){
 	                sum += nextMatrix[i][k]*transMatrix[k][j];
 	            nextMatrix[i][j] = sum;
 	            }
@@ -174,16 +181,18 @@ int main(int argc, char *argv[]) {
     tend = MPI_Wtime();
 
     if (rank == 0) {
-        printf("\n\n");
+		/* Print output to file. */
+		ofstream outfile;
+		outfile.open(outfileName);
 
 		double	rank[numVertices];
 		int	vertex[numVertices];
 		for (int j = 0; j < numVertices; j++) {
 			vertex[j] = j;
-			rank[j] = nextMatrix[0][j]; 
+			rank[j] = currentMatrix[0][j]; 
 			}
-		for (int j = 0; j < numVertices; j++) cout << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
-    
+		for (int j = 0; j < numVertices; j++) outfile << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
+		outfile.close();     
 		printf("Elapsed time: %g s\n", tend-tstart);
     }
 
@@ -199,9 +208,9 @@ void addEdge(int i, int j) {
 }
 
 void printAdjacenyMatrix() {
-	for (int i = 0; i < numVertices; i++) {
+	for (i = 0; i < numVertices; i++) {
 		cout << i << " : ";
-		for (int j = 0; j < numVertices; j++)
+		for (j = 0; j < numVertices; j++)
 			cout << adjMatrix[i][j] << " ";
 		cout << "\n";
 	}
@@ -209,31 +218,31 @@ void printAdjacenyMatrix() {
 
 // New for PageRank
 void createTransitionMatrix() {
-	for (int i = 0; i < numVertices; i++) {
+	for (i = 0; i < numVertices; i++) {
 		double rowSum = 0;
-		for (int j = 0; j < numVertices; j++)
+		for (j = 0; j < numVertices; j++)
 			rowSum += adjMatrix[i][j];
 		if (rowSum > 0)
-			for (int j = 0; j < numVertices; j++)
+			for (j = 0; j < numVertices; j++)
 				transMatrix[i][j] = adjMatrix[i][j]/rowSum;
 		else
-			for (int j = 0; j < numVertices; j++)
+			for (j = 0; j < numVertices; j++)
 				transMatrix[i][j] = 1.0/numVertices;
 	}
 }
 
 void printTransitionMatrix() {
-	for (int i = 0; i < numVertices; i++) {
+	for (i = 0; i < numVertices; i++) {
 		cout << i << " : ";
-		for (int j = 0; j < numVertices; j++)
+		for (j = 0; j < numVertices; j++)
 			cout << transMatrix[i][j] << " ";
 		cout << "\n";
 	}
 }
 
 void dampenTransitionMatrix() {
-	for (int i = 0; i < numVertices; i++) {
-		for (int j = 0; j < numVertices; j++){
+	for (i = 0; i < numVertices; i++) {
+		for (j = 0; j < numVertices; j++){
 			double currentMatrix = transMatrix[i][j];
 			currentMatrix = (damping * currentMatrix) + ((1.0 - damping)/numVertices);
 			transMatrix[i][j] = currentMatrix;
@@ -242,17 +251,17 @@ void dampenTransitionMatrix() {
 }
 
 void initializeMatrixPower() {
-	for (int i = 0; i < numVertices; i++) {
-		for (int j = 0; j < numVertices; j++) {
+	for (i = 0; i < numVertices; i++) {
+		for (j = 0; j < numVertices; j++) {
 			currentMatrix[i][j] = (i == j) ? 1.0 : 0.0;
 		}
 	}
 }
 
 void printMatrixPower() {
-	for (int i = 0; i < numVertices; i++) {
+	for (i = 0; i < numVertices; i++) {
 		cout << i << " : ";
-		for (int j = 0; j < numVertices; j++)
+		for (j = 0; j < numVertices; j++)
 			cout << currentMatrix[i][j] << " ";
 		cout << "\n";
 	}

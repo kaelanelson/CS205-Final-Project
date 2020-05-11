@@ -1,20 +1,18 @@
-/* Kaela Nelson, CS 205 Project, Spring 2020
-Prim's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-adjacency-list-representation-greedy-algo-6/ 
-Closeness Centrality, adapted from */
+//
+// Created by Simon Warchol on 5/6/20.
+//
+
+/* Simon Warchol, CS 205 Project, Spring 2020
+Prim's algorithm, adapted from https://www.geeksforgeeks.org/prims-mst-for-adjacency-list-representation-greedy-algo-6/ */
 
 #include <iostream>
 #include <fstream>
 #include <list>
 #include <mpi.h>
-#include <algorithm>
-#include <array>
-#include <numeric>
-#include <queue>
-#include <omp.h>
+
 
 using namespace std;
 
-// Build Graph from adjacency matrix (represented as a list)
 // Build Graph from adjacency matrix (represented as a list)
 
 int num_vertices;
@@ -25,8 +23,8 @@ typedef struct { int v1; int v2; } Edge;
 
 
 void addEdge(int v1, int v2, int w);
-vector<int> prims(int s, int rank);
-void ClosenessCentrality(int maxId, int rank);
+
+void prims(int s, int rank);
 void distributeAdjacencyMatrix(int rank);
 
 
@@ -36,7 +34,7 @@ void addEdge(int v1, int v2, int w) {
 }
 
 // Adapted from https://www.programiz.com/dsa/prim-algorithm
-vector<int> prims(int s, int rank) {
+void prims(int s, int rank) {
     MPI_Barrier(MPI_COMM_WORLD);
 
     int numEdges = 0; //init
@@ -49,22 +47,16 @@ vector<int> prims(int s, int rank) {
 
     int r, c;
     Edge edge;
-    int l=0;
-    vector<int> row_ls(num_vertices);
-    vector<int> col_ls(num_vertices);
     int *min_pair = new int[2];
-    // if(rank==0){
-        // cout << "Edge" << " : " << "Weight (num_vertices)"<<num_vertices<<"\n";
-    // }
+    if(rank==0){
+        cout << "Edge" << " : " << "Weight (num_vertices)"<<num_vertices<<"\n";
+    }
     // This way of reducing to find the min via https://github.com/elahehrashedi/MPI_Prime_MST/blob/master/PrimMPI.c
-    
     struct { int min; int rank; } minRow, row;
     while (numEdges < num_vertices-1) {
         int min = INT32_MAX;
         r = 0;
         c = 0;
-        int i = 0;
-        #pragma omp parallel for private(i) shared(nper, row_offset, selected, A, min)
         for (int i = row_offset; i < (nper+row_offset); i++) {
             if (selected[i] == 1) {
                 for (int j = 0; j < num_vertices; j++) {
@@ -87,87 +79,21 @@ vector<int> prims(int s, int rank) {
         edge.v2 = c;
         MPI_Bcast(&edge, 1, MPI_2INT, minRow.rank, MPI_COMM_WORLD);
         MPI_Bcast(&min, 1, MPI_INT, minRow.rank, MPI_COMM_WORLD);
-        // if (rank==0){
-            // cout << "Adding Edge: "<<edge.v1 << " - " << edge.v2 << " :  " << A[edge.v1 * num_vertices + edge.v2] << "\n";
-        // }
+        if (rank==0){
+            cout << "Adding Edge: "<<edge.v1 << " - " << edge.v2 << " :  " << A[edge.v1 * num_vertices + edge.v2] << "\n";
+        }
         selected[edge.v1] = 1;
         selected[edge.v2] = 1;
-
-        if (rank==0){
-        row_ls[l] = edge.v1;
-        col_ls[l] = edge.v2;
-        l++;
-        }
         numEdges++;
 
     }
 
-    // create p: a list containing the path lengths from node s to all other nodes
-    vector<int> p(num_vertices);
-    int summ = 0;
-    int k = 0;
-    #pragma omp parallel for private(k) shared(summ)
-    for(int k=0; k < num_vertices-1; k++){
-        int cr = row_ls[k];
-        int cc = col_ls[k];
-        if(k == 0){ // if current node is the first node, add weight
-            p[k] = A[cr * num_vertices + cc];
-
-        }
-        else if(cr == row_ls[0]){ // if current node is same as first node, add weight
-            p[k] = A[cr * num_vertices + cc];
-        }
-
-        else if(cr == col_ls[k-1]){ 
-             int pc = col_ls[k-1];
-            summ = summ + A[cr * num_vertices + pc];
-            p[k] = summ;
-            }
-        }
-    return p;
-
 }
 
-void ClosenessCentrality(int maxId, int rank){
-
-    // initialize list
-    vector<float> closeness_centrality(num_vertices);
-
-
-    list<int>::iterator i;
-    for(int i=0; i < num_vertices; i++){
-        // sum min path starting at node i
-        vector<int> sp = prims(i,rank);
-
-         // add up path distances to neighboring nodes
-        int tot_sp = accumulate(sp.begin(), sp.end(), 0);
-
-        if(tot_sp>0 and num_vertices>1){
-            if(rank==0)
-            // nummber od nodes / sum of min paths
-            closeness_centrality[i] = ((float)num_vertices - 1)/(float)tot_sp; 
-            }
-
-        else{
-            closeness_centrality[i] = 0.0;
-            }
-        
-    }
-
-    // print for each node's closeness measurement;
-    if(rank==0){
-        cout << "Closeness Centrality : " << endl;
-        for (int i = 1; i < num_vertices; ++i)
-            cout << i << " : " << closeness_centrality[i] << "\n";
-    }
-}
-
-
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
     MPI_Status status;
-    double tstart, tend;
+
     int rank;
-    int maxId;
     /* Initialize MPI and get rank and size */
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -194,7 +120,6 @@ int main(int argc, char *argv[]){
             maxId = max(maxId, stoi(id2));
         }
         num_vertices = maxId + 1;
-        // cout << num_vertices;
         A = new int[num_vertices * num_vertices];
 
         //  Initialize an adjacency matrix
@@ -238,17 +163,7 @@ int main(int argc, char *argv[]){
     row_offset = rank * nper;
     blocksize = nper * num_vertices;
     distributeAdjacencyMatrix(rank);
-
-    // if (rank == 0){
-    // prims(0, rank);
-    tstart = MPI_Wtime();
-    ClosenessCentrality(maxId,rank);
-    tend = MPI_Wtime();
-
-    /* Timing summary */
-    if (rank == 0)
-        printf( "Elapsed time: %g s\n",tend-tstart);
-
+    prims(0, rank);
     free(A);
     MPI_Finalize();
 
@@ -266,6 +181,7 @@ void distributeAdjacencyMatrix(int rank){
     }
 
 }
+
 
 
 

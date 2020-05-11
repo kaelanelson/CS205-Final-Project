@@ -1,6 +1,6 @@
-## Model and Data
+# Model and Data
 
-### Model
+## Model
 
 The purpose of this project is to improve the runtime of commonly used graph algorithms using parallelization. Thus, we are not using a single model but rather seven different algorithms that can be used to calculate important statistics of graphs. Some algorithms build upon each other but all provide output that is useful even in isolation. For more information on an algorithm, please see its individual page. 
 
@@ -13,19 +13,19 @@ The purpose of this project is to improve the runtime of commonly used graph alg
 - **Closeness Centrality**: Another common measure of centrality defines a central node as one that is closer to all other nodes. 
 - **PageRank**: Initially developed for ranking web pages, this algorithm can be applied to any graph. It measures centrality through a recursive definition: important nodes are those that are connected to from other important nodes. 
 
-### Data
+## Data
 
-We are concerned with creating algorithms that are domain agnostic and can be used on a variety of data. Thus, we are not concerned with the specifics of any one dataset. Instead, we will be using datasets from a diverse set of domains to test our algorithms. 
+We are concerned with creating algorithms that are domain agnostic and can be used on a variety of data. Thus, we are not concerned with the specifics of any one dataset. We used a mix of real and artificial datasets to test our algorithms as some algorithms, like Minimum Spanning Tree algorithms, benefited from particular graph densities for testing. 
 
-These datasets are obtained from the **[Stanford Large Network Dataset Collection (SNAP)](https://snap.stanford.edu/data/index.html)** which provides large datasets from diverse domains. These datasets have also been cleaned and prepared for graph analytics, letting us focus on on implementation. There was only minimal data processing required to concatenate edge files as they were often provided as separate text files. 
+Our main test data, the ego-Facebook dataset, was obtained from the **[Stanford Large Network Dataset Collection (SNAP)](https://snap.stanford.edu/data/index.html)** which provides large datasets from diverse domains. These datasets have also been cleaned and prepared for graph analytics, letting us focus on on implementation. There was only minimal data processing required to concatenate edge files as they were provided as separate text files. 
 
-| Dataset                                                      | Type                   | Nodes | Edges  | Description                        | Tested On |
-| ------------------------------------------------------------ | ---------------------- | ----- | ------ | ---------------------------------- | --------- |
-| [ego-Facebook (Edges files only)](https://snap.stanford.edu/data/ego-Facebook.html) | Undirected, Unweighted | 4039  | 88,234 | Anonymized Facebook social circles |           |
-|                                                              |                        |       |        |                                    |           |
-|                                                              |                        |       |        |                                    |           |
+| Dataset                                                      | Type                   | Nodes | Edges  | Description                                                  | Tested On |
+| ------------------------------------------------------------ | ---------------------- | ----- | ------ | ------------------------------------------------------------ | --------- |
+| [ego-Facebook (Edges files only)](https://snap.stanford.edu/data/ego-Facebook.html) | Undirected, Unweighted | 4039  | 88,234 | Anonymized Facebook social circles                           |           |
+|                                                              | Undirected, Weighted   |       |        | Synthetic data created specifically for testing MST algorithms. |           |
+|                                                              |                        |       |        |                                                              |           |
 
-#### Example Edges File
+### Example Edges File
 
 ```
 285 186
@@ -35,6 +35,8 @@ These datasets are obtained from the **[Stanford Large Network Dataset Collectio
 135 30
 ```
 
-Each row holds a single edge between two nodes. In the example above, there are 5 edges and 8 nodes. The resulting graph could be represented visually as:
+Each row holds a single edge between two nodes. In the example above, there are 5 edges and 8 nodes. for the ego-Facebook dataset, the nodes (circles) would represent the id of a Facebook user. For example, User 285 is friends with three other users: 186, 176, and 108. The resulting graph could be represented visually as:
 
-![graph](/home/pau/IACS/Spring2020/cs205/project/website/graph.png)
+![graph](graph.png)
+
+One exception here is that for the MST algorithms, we generated our own data to test on. This generation script is availible in `/data/generate_mst_data.py`. This was done because the facebook datasets did not contain singular spanning trees, and as such, it was more useful to test on adjacency lists with confirmed MSTs in them.
