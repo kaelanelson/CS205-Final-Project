@@ -1,5 +1,17 @@
 # Instructions for Running Code
 
+To download the code and tests to your local machine, please use one of the following options: 
+
+**Clone the GitHub Repository**
+
+```
+git clone https://github.com/kaelanelson/CS205-Final-Project.git
+```
+
+**Download and Extract ZIP File**
+
+[Link](https://github.com/kaelanelson/CS205-Final-Project/archive/master.zip)
+
 ## Prim's Algorithm
 
 Data file must be adjacency list in the format  `v1 v2 w`
@@ -139,7 +151,6 @@ Then, on master node, run (with x processors):
 
 ```bash
 mpirun -np x -hosts master,node1 ./ccm mst_test3_sub.txt 
-
 ```
 
 ### Hybrid
@@ -157,6 +168,146 @@ cp cch cloud/
 Then, on master, run:
 ```
 mpirun -np x -hosts master,node1 ./cch mst_test3_sub.txt 
-
 ```
 
+## PageRank
+
+The first sections demonstrate how to run the code for your own data. The later section demonstrates how to run the tests used for the performance evaluation. 
+
+Data file must be a text file with one edge per line in the format  `v1 v2` where `v1` is the first node (vertex) and `v2` is the second node.
+
+### Sequential
+
+**Location: /Sequential/pagerank.cpp**
+
+To run, you must first compile the program with the following command line code.
+
+```
+g++ -DUSE_CLOCK pagerank.cpp timing.cpp -o pagerank
+```
+
+You might need to specify the C++11 library as so: 
+
+```
+g++ -std=c++11 -DUSE_CLOCK pagerank.cpp timing.cpp -o pagerank
+```
+
+Run the code and provide a text file input as follows:
+
+```
+./pagerank [input file]
+```
+
+The terminal will show the following information when running correctly.
+
+[IMAGE]
+
+The PageRank output, sorted by node number, will be written to `pagerankOutput.txt` unless configured below. 
+
+#### Configuration
+
+##### Output File Location and Name
+
+To change the output file location and name, edit Line 19:
+
+```
+string outfileName = "yourFileName.txt"; 
+```
+
+##### Number of Convergence Steps
+
+To change the number of convergence steps, (more steps result in more accurate ranks), edit Line 18:
+
+```
+int totalSteps = 5;
+```
+
+The default is 5 steps.
+
+### MPI
+
+The following code can be run on an instance with the MPI library installed or an MPI cluster as set up in the [CS205 Lab I7 Guide: MPI on AWS]( https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf). Please note that the current implementation of this code only works with files whose total number of nodes (vertices) is divisible by the number of processes specified. 
+
+To compile, run the relevant user on the master node, run:
+
+```
+mpic++ pagerank_mpi.cpp -o pagerank_mpi
+cp pagerank_mpi cloud/
+```
+
+Once in the `cloud` directory, you can run the program on a single node:
+
+```
+mpirun -np [number of proceses] ./pagerank_mpi [input file]
+```
+
+Or to run on multiple nodes (two shown as an example), execute the following code on the master node:
+
+```
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_mpi [input file]
+```
+
+The terminal will show the row partitions for each of the processes when working correctly.
+
+[IMAGE] 
+
+#### Configuration
+
+The MPI implementation of PageRank requires a bit more configuration than that of the sequential version.
+
+##### Set Number of Nodes (Vertices) 
+
+The number of nodes must be set manually in the code in Line 14 before compiling. 
+
+```
+#define numVertices 8
+```
+
+##### Output File Location and Name
+
+The output file location and name can be changed as in the sequential version as shown above.
+
+##### Number of Convergence Steps
+
+The number of convergence steps can be changed as in the sequential version as shown above.
+
+### MPI + OpenMP
+
+As with the MPI version, the following code can be run on an instance with the MPI library installed or an MPI cluster as set up in the [CS205 Lab I7 Guide: MPI on AWS]( https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf). Please note that the current implementation of this code only works with files whose total number of nodes (vertices) is divisible by the number of processes specified. 
+
+```
+mpic++ pagerank_hybrid.cpp -fopoenmp -o pagerank_hybrid
+cp pagerank_hybrid cloud/
+```
+
+Once in the `cloud` directory, you can run the program on a single node:
+
+```
+mpirun -np [number of proceses] ./pagerank_hybrid [input file]
+```
+
+Or to run on multiple nodes (two shown as an example), execute the following code on the master node:
+
+```
+mpirun -np [number of proceses] -hosts master,node1 ./pagerank_hybrid [input file]
+```
+
+The terminal will show the row partitions for each of the processes when working correctly.
+
+#### Configuration
+
+The MPI implementation of PageRank requires the same kind of configuration as that of the MPI version.
+
+##### Set Number of Nodes (Vertices) 
+
+The number of nodes must be set manually in the code as shown in the MPI version configuration. . 
+
+##### Output File Location and Name
+
+The output file location and name can be changed as in the sequential or MPI version as shown above.
+
+##### Number of Convergence Steps
+
+The number of convergence steps can be changed as in the sequential or MPI version as shown above.
+
+### 
