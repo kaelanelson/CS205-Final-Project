@@ -154,9 +154,9 @@ Throughout the program, we perform quite a number of matrix initializations and 
 
 The m4.2xlarge instance has 8 total vCPUs made up of four cores with two threads each. 
 
-### Strong Scaling
+### Weak Scaling
 
-Strong scaling was tested on two AWS m4.2xlarge instances using a subset of the ego-Facebook edges files. This file was created by concatenating the 0.edges, 107.edges, 348.edges, and 414.edges files into a new 0_414.edges file. This resulted in a file with 68306 edges and 1912 nodes. 
+Wak scaling was tested on two AWS m4.2xlarge instances using a subset of the ego-Facebook edges files. This file was created by concatenating the 0.edges, 107.edges, 348.edges, and 414.edges files into a new 0_414.edges file. This resulted in a file with 68306 edges and 1912 nodes. 
 
 #### MPI
 
@@ -205,9 +205,9 @@ One of the reasons for implementing parallelism at a fine-grained level using Op
 
 As shown in the table above, a user with only 1 instance using the MPI + OMP hybrid implementation can, for the same number of total processes, can expect speedup less than, but comparable to that of the MPI implementation with 2 instances. For 4 total processes, the MPI + OMP configuration has 97% of the speedup of the MPI version. Meanwhile, for 8 total processes, the MPI + OMP configuration has 94% o fthe speedup of the MPI version. 
 
-### Weak Scaling
+### Strong Scaling
 
-Weak scaling was tested on one AWS m4.2xlarge instance on three different sized subsets of the ego-Facebook dataset. The first and third files were subset from the ego-Facebook files to ensure that the number of nodes was divisible by 4. The 4032.edges file holds almost all the nodes from the original dataset: it is missing only 7. The sizes of the datasets are shown below.
+Strong scaling was tested on one AWS m4.2xlarge instance on three different sized subsets of the ego-Facebook dataset. The first and third files were subset from the ego-Facebook files to ensure that the number of nodes was divisible by 4. The 4032.edges file holds almost all the nodes from the original dataset: it is missing only 7. The sizes of the datasets are shown below.
 
 | File Name   | Edges  | Nodes | Size     |
 | ----------- | ------ | ----- | -------- |

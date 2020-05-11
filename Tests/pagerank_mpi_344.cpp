@@ -11,7 +11,10 @@ https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp */
 
 using namespace std;
 
-#define numVertices 344
+#define numVertices 344 /* Set this when running!*/
+
+int totalSteps = 5; /* Change if you want to run for more steps for better convergence. */
+string outfileName = "pagerankOutputMPI_344.txt"; /* Change file name. */
 
 double adjMatrix[numVertices][numVertices], currentMatrix[numVertices][numVertices], transMatrix[numVertices][numVertices], nextMatrix[numVertices][numVertices];
 double damping = 0.85;
@@ -135,7 +138,7 @@ int main(int argc, char *argv[]) {
 
     MPI_Bcast (transMatrix, numVertices*numVertices, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    if( rank == 0){
+    if(rank == 0){
         MPI_Scatter (currentMatrix, numVertices*numVertices/size, MPI_DOUBLE, MPI_IN_PLACE, numVertices*numVertices/size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     }
     else {
@@ -176,14 +179,19 @@ int main(int argc, char *argv[]) {
     if (rank == 0) {
         printf("\n\n");
 
+		/* Print output to file. */
+		ofstream outfile;
+		outfile.open(outfileName);
+
 		double	rank[numVertices];
 		int	vertex[numVertices];
 		for (int j = 0; j < numVertices; j++) {
 			vertex[j] = j;
-			rank[j] = nextMatrix[0][j]; 
+			rank[j] = currentMatrix[0][j]; 
 			}
-		for (int j = 0; j < numVertices; j++) cout << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
-    
+		for (int j = 0; j < numVertices; j++) outfile << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
+		outfile.close(); 
+
 		printf("Elapsed time: %g s\n", tend-tstart);
     }
 
