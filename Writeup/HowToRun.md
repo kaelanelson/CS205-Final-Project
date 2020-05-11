@@ -109,7 +109,7 @@ Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-C
 
 ```bash
 export OMP_NUM_THREADS=x
-g++ -fopenmp -Ofast bfs-omp.cpp -o bfs_omp
+g++ -fopenmp -Ofast bfs_omp.cpp -o bfs_omp
 ./bfs_omp all.edges
 ```
 
@@ -138,8 +138,6 @@ cp ccm cloud/
 Then, on master node, run (with x processors):
 
 ```bash
-mpic++ cc_mpi.cpp -o ccm
-cp ccm cloud/
 mpirun -np x -hosts master,node1 ./ccm mst_test3_sub.txt 
 
 ```
@@ -158,7 +156,7 @@ cp cch cloud/
 
 Then, on master, run:
 ```
-mpirun -np 2 -hosts master,node1 ./cch mst_test3_sub.txt 
+mpirun -np x -hosts master,node1 ./cch mst_test3_sub.txt 
 
 ```
 
