@@ -17,14 +17,14 @@ Despite the long history of graph theory and network analysis, there are still m
 
 ## Algorithms
 
-To investigate how parallel computing can solve these challenges, we picked seven important graph algorithms to parallelize. For more information on these algorithms, please see **Model and Data**.
+To investigate how parallel computing can solve these challenges, we picked seven important graph algorithms to parallelize. For more information on these algorithms, please see [Model and Data](ModelAndData.html).
 
-- **Graph Representation as an Adjacency Matrix**
-- **Shortest Path Calculation using Breath First Search**
-- **Minimum Spanning Tree**
-- **Degree Centrality** 
-- **Closeness Centrality**
-- **PageRank**
+- [Graph Representation as an Adjacency Matrix]
+- [Shortest Path Calculation using Breath First Search](BFS.html)
+- [Minimum Spanning Tree](MST.html)
+- [Degree Centrality] 
+- [Closeness Centrality](Closeness_Centrality.html)
+- [PageRank](PageRank.html)
 
 ## Need for High Performance Computing and Big Data
 
