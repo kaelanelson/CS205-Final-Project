@@ -7,6 +7,7 @@ https://www.cs.usfca.edu/~cruse/math202s11/pagerank.cpp */
 #include <fstream>
 #include <algorithm>
 #include <stdio.h>
+#include <math.h>
 #include <time.h>
 #include "timing.h"
 
@@ -32,8 +33,9 @@ void dampenTransitionMatrix();
 
 void initializeMatrixPower();
 
-int main(int argc, char *argv[]) {
+void printMatrixPower();
 
+int main(int argc, char *argv[]) {
 	if (argc != 2) {
 		cout << "Specify an input file" << endl;
 		exit(1);
@@ -55,8 +57,11 @@ int main(int argc, char *argv[]) {
 	file.clear();
 	file.seekg(0);
 
-	/* Initialize adjacency matrix */
+	/* Set number of vertices. */
 	numVertices = maxId+1;
+	printf("Size: %d \n", numVertices);
+
+	/* Initialize adjacency matrix */
 	adjMatrix = new int *[numVertices];
 	for (int i = 0; i < numVertices; i++) {
 		adjMatrix[i] = new int[numVertices];
@@ -74,7 +79,8 @@ int main(int argc, char *argv[]) {
 	}
 	file.close();
 
-	printMatrix();
+	//printMatrix();
+	printf("Adjacency matrix created.\n");
 
 	/* PageRank starts here. */
 	get_time(&tstart);
@@ -86,6 +92,7 @@ int main(int argc, char *argv[]) {
 		for (int j = 0; j < numVertices; j++)
 			transMatrix[i][j] = 0;
 	}
+	printf("Transition matrix initialized.\n");
 
 	/* Initialize current matrix for matrix power*/
 	currentMatrix = new double *[numVertices];
@@ -94,26 +101,30 @@ int main(int argc, char *argv[]) {
 		for (int j = 0; j < numVertices; j++)
 			currentMatrix[i][j] = 0;
 	}
+	printf("Matrix power initizlized.\n");
 
 	createTransitionMatrix();
-	// printTransitionMatrix();
+	printf("Transition matrix created.\n");
 	dampenTransitionMatrix();
-	// printTransitionMatrix();
+	printf("Transition matrix dampened.\n");
 	initializeMatrixPower();
+	printf("\n");
 
 	/* Main Loop for PageRank */
 	int step = 0; 
 	do	{
 		// compute the next matrix power 
-		for (int i = 0; i < numVertices; i++)
-		for (int j = 0; j < numVertices; j++) {
-			double sum = 0.0;
-			for (int k = 0; k < numVertices; k++)
-				sum += currentMatrix[i][k] * transMatrix[k][j];
-			currentMatrix[i][j] = sum;
+		for (int i = 0; i < numVertices; i++) {
+			for (int j = 0; j < numVertices; j++) {
+				double sum = 0.0;
+				for (int k = 0; k < numVertices; k++)
+					sum += currentMatrix[i][k] * transMatrix[k][j];
+				currentMatrix[i][j] = sum;
+			}
 		}
 
-		// Check convergence 
+		// Check convergence
+		/*
 		prevDiff = squareDiff;
 		double diff = 0.0;
 		squareDiff = 0.0; 
@@ -124,25 +135,32 @@ int main(int argc, char *argv[]) {
 			squareDiff += diff * diff;
 		}
 		currentDiff = abs(prevDiff - squareDiff); 
+		cout << "Step :" << step << "\n";
+		cout << "Difference: " << currentDiff << "\n";
+		*/
 		step++;
 	}
-	while(currentDiff > 0.0001);
+	while(step < 5);
 	/* End of PageRank algorithm. */
 	get_time(&tend);
 
 	printf( "\n" );
 
-	// Printing out PageRank vector
+	/* Print output to file. */
+	//ofstream outfile;
+	//outfile.open ("pagerankOutput.txt");
+
 	double	rank[numVertices];
 	int	vertex[numVertices];
 	for (int j = 0; j < numVertices; j++) {
 		vertex[j] = j;
 		rank[j] = currentMatrix[0][j]; 
 		}
-	printf( "Stationary vector by vertex number: \n" );
 	for (int j = 0; j < numVertices; j++) cout << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
-	printf( "\n" );
+	//outfile.close();
+	/* End of unsorted output. */
 
+	/*
 	// Sorting PageRank vector
 	int	i = 0, j = 1;
 	do {
@@ -171,6 +189,7 @@ int main(int argc, char *argv[]) {
 	printf( "Sorted vertices by PageRank: \n" );
 	for (int j = 0; j < numVertices; j++) cout << "vertex: " << vertex[j] << ", rank: " << rank[j] << "\n";
 	printf( "\n" );
+	*/
 
 	printf("*****************************************************\n");
 	printf ("Elapsed Time: %g s.\n", timespec_diff(tstart,tend));
@@ -245,5 +264,14 @@ void initializeMatrixPower() {
 		for (int j = 0; j < numVertices; j++) {
 			currentMatrix[i][j] = (i == j) ? 1.0 : 0.0;
 		}
+	}
+}
+
+void printMatrixPower() {
+	for (int i = 0; i < numVertices; i++) {
+		cout << i << " : ";
+		for (int j = 0; j < numVertices; j++)
+			cout << currentMatrix[i][j] << " ";
+		cout << "\n";
 	}
 }
