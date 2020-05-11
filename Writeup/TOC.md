@@ -1,0 +1,11 @@
+# Table of Contents
+1. [Problem Statement](#ProblemStatement)
+2. [Solution](#Solution)
+3. [Model and Data](#ModelAndData)
+4. [Specs](#Specs)
+5. [How To Run](#HowToRun)
+6. [BFS](#BFS)
+7. [Closeness Centrality](#Closeness_Centrality)
+8. [MST Algorithms](#MST)
+9. [Page Rank](#PageRank)
+10. [Discussion](#Discussion)
