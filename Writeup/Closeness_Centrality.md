@@ -85,7 +85,7 @@ We ran the code with different parallelization variations of hybrid parallelizat
 
 Note that these execution times are all almost half of the serial execution time of 93 seconds. Running the code with 4 threads/task, 1 task/node seemed to perform the best indicating that the algorithm responds better when utilizing more threads per task and less tasks per node. This makes sense, as load balancing varies between the many components of this algorithm.
 
-We then ran the code with 2-8 tasks/cores on two nodes to understand how increasing threads/task affects speed up.  
+We then ran the code with 2-8 cores on two nodes to understand how increasing number of cores used affects speed up.  
 
 ![](BFS_CC/cch_su.png)
 
