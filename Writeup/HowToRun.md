@@ -97,15 +97,17 @@ mpirun -np 4 -hosts master,node1 ./kruskals_hybrid generatedMstDataKruskals.txt
 Data file must be adjacency list in the format  `v1 v2`
 
 ### Sequential
-```
-bash
+```bash
 g++ -DUSE_CLOCK bfs.cpp timing.cpp -o bfs
 time ./bfs all.edges
 ```
 
 ### OpenMP
-```
-bash
+
+Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I6/guide/Guide_I6.pdf
+
+
+```bash
 export OMP_NUM_THREADS=x
 g++ -fopenmp -Ofast bfs-omp.cpp -o bfs_omp
 ./bfs_omp all.edges
@@ -117,8 +119,7 @@ Data file must be adjacency list in the format  `v1 v2 w`
 
 ### Sequential
 
-```
-bash
+```bash
 g++ -DUSE_CLOCK closeness_centrality.cpp timing.cpp -o cc
 time ./cc mst_test3_sub.txt
 ```
@@ -129,16 +130,14 @@ Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-C
 
 Run on all nodes
 
-```
-bash
+```bash
 mpic++ cc_mpi.cpp -o ccm
 cp ccm cloud/
 ```
 
 Then, on master node, run (with x processors):
 
-```
-bash
+```bash
 mpic++ cc_mpi.cpp -o ccm
 cp ccm cloud/
 mpirun -np x -hosts master,node1 ./ccm mst_test3_sub.txt 
@@ -149,11 +148,10 @@ mpirun -np x -hosts master,node1 ./ccm mst_test3_sub.txt
 
 Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf
 
-Run on all nodes
+Run on all nodes, where x is the number of threads
 
-```
-bash
-export OMP_NUM_THREADS=4
+```bash
+export OMP_NUM_THREADS=x
 mpic++ -fopenmp cc_hybrid.cpp -o cch
 cp cch cloud/
 ```
