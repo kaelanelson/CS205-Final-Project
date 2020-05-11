@@ -3,51 +3,65 @@
 
 #include <iostream>
 #include <fstream>
-#include <map>
+#include <algorithm>
+#include <ctime>
 
 using namespace std;
 
-map<int,int> degrees;
+int numVertices;
+int **adjMatrix;
 
-int main(int argc, char * argv[]){
+void addEdge(int i, int j) {
+    adjMatrix[i][j] = 1;
+    adjMatrix[j][i] = 1;
+}
+
+int main(int argc, char *argv[]) {
     
-    if(argc != 2){
-        cout << "Specify an input file" << endl;
-        exit(1);
-    }
-    
-    ifstream file(argv[1], ifstream::binary);
-    if(!file.is_open()) {
-        cout << "Unable to open file " << argv[1] << endl;
-        exit(2);
-    }
-    
-    string n1,n2;
-    while(!file.eof()){
-        file >> n1;
-        file >> n2;
-        int id1 = stoi(n1);
-        int id2 = stoi(n2);
-        if(degrees.count(id1) <= 0)
-            degrees[id1] = 0;
-        if(degrees.count(id2) <= 0)
-            degrees[id2] = 0;
-        if(id1 != id2) {
-            degrees[id1]++;
-            degrees[id2]++;
-        }
+    ifstream file("all.edges", ifstream::binary); 
+    /* Count number of IDs */
+    int maxId = 0;
+    string id;
+    while (!file.eof()) {
+        file >> id;
+        maxId = max(maxId, stoi(id));
     }
     file.clear();
     file.seekg(0);
     
-    cout << "Key\tDegree Centrality" << endl;
-    int max_neighbors = degrees.size() - 1;
-    for(map<int,int>::iterator iter = degrees.begin(); iter != degrees.end(); ++iter) {
-        int k =  iter->first;
-        int v = iter->second;
-        double deg = (float)v / max_neighbors;
-        cout << k << "\t" << deg << endl;
+    /* Initialize adjacency matrix */
+    numVertices = maxId+1;
+    adjMatrix = new int *[numVertices];
+    for (int i = 0; i < numVertices; i++) {
+        adjMatrix[i] = new int[numVertices];
+        for (int j = 0; j < numVertices; j++)
+            adjMatrix[i][j] = 0;
     }
+    
+    /* Add edges to matrix */
+    string i1, i2;
+    while (!file.eof()) {
+        file >> i1 >> i2;
+        addEdge(stoi(i1), stoi(i2));
+    }
+    file.close();
+    
+    clock_t start = clock();
+    int sum;
+    for (int i = 0; i < numVertices; i++) {
+        sum = 0;
+        for (int j = 0; j < numVertices; j++){
+            if(adjMatrix[i][j]==1)
+                sum++;
+        }
+    }
+    clock_t end = clock();
+    double duration = (end - start) / (double) CLOCKS_PER_SEC;
+    cout << "duration = " << duration << endl;
+    
+    for (int i = 0; i < numVertices; i++)
+        delete[] adjMatrix[i];
+    delete[] adjMatrix;
     
     return 0;
 }
