@@ -200,7 +200,7 @@ Run the code and provide a text file input as follows:
 
 The terminal will show the following information when running correctly.
 
-![PageRank Sequential Output]()
+![PageRank Sequential Output](PR/pagerankSequential.png)
 
 The PageRank output, sorted by node number, will be written to `pagerankOutput.txt` unless configured below. 
 
@@ -249,7 +249,7 @@ mpirun -np [number of proceses] -hosts master,node1 ./pagerank_mpi [input file]
 
 The terminal will show the row partitions for each of the processes when working correctly.
 
-![PageRank MPI Output]()
+![PageRank MPI Output](PR/pagerankMPI.png)
 
 #### Configuration
 
@@ -294,7 +294,7 @@ mpirun -np [number of proceses] -hosts master,node1 ./pagerank_hybrid [input fil
 
 The terminal will show the row partitions for each of the processes when working correctly.
 
-![PageRank Hybrid Output]()
+![PageRank Hybrid Output](PR/pagerankHybrid.png)
 
 #### Configuration
 
