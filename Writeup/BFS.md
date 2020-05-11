@@ -60,15 +60,15 @@ The serial runtime for this algorithm is 0.024 seconds.
 
 Speed up results are as follows
 
-| Version | Processors (#) | Speed Up |
-|------------|---------------------|----------------|
-| MPI | 2 | 1.279 |
-| MPI | 3 | 1.469 |
-| MPI | 4 | 1.603 |
-| MPI | 5 | 1.491 |
-| MPI | 6 | 1.459 |
-| MPI | 7 | 1.482 |
-| MPI | 8 | 1.285 |
+| Threads (#) | Speed Up |
+|---------------------|----------------|
+| 2 | 1.279 |
+| 3 | 1.469 |
+| 4 | 1.603 |
+| 5 | 1.491 |
+| 6 | 1.459 |
+| 7 | 1.482 |
+| 8 | 1.285 |
 
 ![](BFS_CC/bfs_omp_su1.png)
 
