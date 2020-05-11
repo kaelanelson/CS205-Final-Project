@@ -92,3 +92,75 @@ Then from the master node run
 mpirun -np 4 -hosts master,node1 ./kruskals_hybrid generatedMstDataKruskals.txt
 ```
 
+## BFS Algorithm
+
+Data file must be adjacency list in the format  `v1 v2`
+
+### Sequential
+```
+bash
+g++ -DUSE_CLOCK bfs.cpp timing.cpp -o bfs
+time ./bfs all.edges
+```
+
+### OpenMP
+```
+bash
+export OMP_NUM_THREADS=x
+g++ -fopenmp -Ofast bfs-omp.cpp -o bfs_omp
+./bfs_omp all.edges
+```
+
+## Closeness Centrality
+
+Data file must be adjacency list in the format  `v1 v2 w`
+
+### Sequential
+
+```
+bash
+g++ -DUSE_CLOCK closeness_centrality.cpp timing.cpp -o cc
+time ./cc mst_test3_sub.txt
+```
+
+### MPI
+
+Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf
+
+Run on all nodes
+
+```
+bash
+mpic++ cc_mpi.cpp -o ccm
+cp ccm cloud/
+```
+
+Then, on master node, run (with x processors):
+
+```
+bash
+mpic++ cc_mpi.cpp -o ccm
+cp ccm cloud/
+mpirun -np x -hosts master,node1 ./ccm mst_test3_sub.txt 
+
+```
+
+### Hybrid
+
+Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf
+
+Run on all nodes
+
+```
+bash
+export OMP_NUM_THREADS=4
+mpic++ -fopenmp cc_hybrid.cpp -o cch
+cp cch cloud/
+```
+
+Then, on master, run:
+```
+mpirun -np 2 -hosts master,node1 ./cch mst_test3_sub.txt 
+
+```
+
