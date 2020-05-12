@@ -3,8 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <ctime>
 #include <mpi.h>
 #include <string>
 
@@ -12,10 +10,8 @@ using namespace std;
 
 int num_vertices;
 int* A;
+double * degs;
 int offset, blocksize, size, nper, row_offset;
-typedef struct { double deg; int v; } DegCent;
-
-void deg_centrality(int s, int rank);
 
 void distributeAdjacencyMatrix(int rank){
     MPI_Status status;
@@ -35,18 +31,14 @@ void addEdge(int v1, int v2) {
 void deg_centrality(int rank) {
     MPI_Barrier(MPI_COMM_WORLD);
     for (int i = row_offset; i < (nper+row_offset); i++) {
-        DegCent degCent;
-        degCent.v = i;
         int sum = 0;
         for (int j = 0; j < num_vertices; j++) {
             if(A[i * num_vertices + j] == 1)
                 sum++;
         }
-        degCent.deg = (double) sum / (num_vertices - 1);
-        MPI_Bcast(&degCent, 1, MPI_DOUBLE_INT, rank, MPI_COMM_WORLD);
-        if (rank==0){
-            cout << degCent.v << "\t" << degCent.deg << endl;
-        }
+        int ind = (i - row_offset)*2;
+        degs[ind] = i;
+        degs[ind+1] = (double) sum / (num_vertices - 1);
     }
 }
 
@@ -57,11 +49,9 @@ int main(int argc, char * argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     
-    string filename = "all.edges";
-    
     if (rank == 0) {
         printf("Processes: %d\n", size);
-        ifstream file(filename, ifstream::binary);
+        ifstream file("all.edges", ifstream::binary);
         
         int maxId = 0;
         string id1, id2;
@@ -75,6 +65,7 @@ int main(int argc, char * argv[]){
         for (int i = 0; i < num_vertices * num_vertices; i++) {
             A[i] = 0;
         }
+        file.clear();
         file.seekg(0);
         while (!file.eof()) {
             file >> id1 >> id2;
@@ -85,7 +76,6 @@ int main(int argc, char * argv[]){
         for (int i = 1; i < size; i++) {
             MPI_Send(&num_vertices, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
         }
-        // init weights and edges
     } else {
         MPI_Recv(&num_vertices, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
         A = new int[num_vertices * num_vertices];
@@ -100,14 +90,28 @@ int main(int argc, char * argv[]){
     blocksize = nper * num_vertices;
     distributeAdjacencyMatrix(rank);
     
+    degs = new double[nper*2];
     double tstart = MPI_Wtime();
     deg_centrality(rank);
+    if (rank == 0) {
+        for(int j = 0; j < nper; j++){
+            cout << (int) degs[j*2] << "\t" << degs[j*2+1] << endl;
+        }
+        for (int i = 1; i < size; i++) {
+            MPI_Recv(degs, nper*2, MPI_DOUBLE, i, i, MPI_COMM_WORLD, &status);
+            for(int j = 0; j < nper; j++)
+                cout << (int) degs[j*2] << "\t" << degs[j*2+1] << endl;
+        }
+    } else {
+        MPI_Send(degs, nper*2, MPI_DOUBLE, 0, rank, MPI_COMM_WORLD);
+    }
     double tend = MPI_Wtime();
 
     if (rank == 0)
         printf( "Elapsed time: %g s\n",tend-tstart);
     
     free(A);
+    free(degs);
     MPI_Finalize();
     return 0;
 }
