@@ -13,6 +13,66 @@ git clone https://github.com/kaelanelson/CS205-Final-Project.git
 
 [Link](https://github.com/kaelanelson/CS205-Final-Project/archive/master.zip)
 
+## Adjacency Matrix
+
+Data file must be adjacency list in the format  `v1 v2`
+
+Data file is hardcoded in the C++ file. Edit the filename in the code to supply other data. 
+
+### Sequential 
+
+```bash
+g++ Sequential/adj_matrix.cpp -o adj_matrix
+./adj_matrix
+```
+
+### MPI
+
+Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf
+
+Run on all nodes
+
+```bash
+mpic++ adj_matrix_mpi.cpp -o aj_mpi
+cp aj_mpi cloud/
+```
+
+Then from the master node run
+
+```bash
+mpirun -np 4 -hosts master,node1 ./aj_mpi
+```
+
+## Degree Centrality
+
+Data file must be adjacency list in the format  `v1 v2`
+
+Data file is hardcoded in the C++ file. Edit the filename in the code to supply other data. 
+
+### Sequential 
+
+```bash
+g++ Sequential/deg_centrality.cpp -o deg_centrality
+./deg_centrality
+```
+
+### MPI
+
+Must be run on cluster configured like so: https://harvard-iacs.github.io/2020-CS205/lab/I7/guide/Guide_I7.pdf
+
+Run on all nodes
+
+```bash
+mpic++ deg_centrality_mpi.cpp -o dc_mpi
+cp dc_mpi cloud/
+```
+
+Then from the master node run
+
+```bash
+mpirun -np 4 -hosts master,node1 ./dc_mpi
+```
+
 ## Prim's Algorithm
 
 Data file must be adjacency list in the format  `v1 v2 w`
