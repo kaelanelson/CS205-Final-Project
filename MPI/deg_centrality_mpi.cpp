@@ -1,5 +1,5 @@
 /* Kyra Ballard, CS 205 Project, Spring 2020
- sequential degree centrality implementation */
+ parallel degree centrality implementation */
 
 #include <iostream>
 #include <fstream>
