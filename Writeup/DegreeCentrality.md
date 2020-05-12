@@ -3,11 +3,11 @@
 For each node, degree centrality finds the proportion of the graph that the node is directly connected to. It is useful to determine important nodes in a graph, such as identifying key influencers in a social graph. 
 
 ## Sequential algorithm
-For each node 's' in a graph: 
-1. Find number of nodes that 's' shares an edge with
+For each node s in a graph: 
+1. Find the number of nodes that s shares an edge with
 2. Compute degree centrality: ratio between number of neighbors and total nodes in graph 
 
-Degree centrality for a node 's' represents the proportion of the graph that 's' is directly connected to. If a node has a degree centrality score of 0, it is disjoint from the rest of the graph. If a node has a degree centrality score of 1, it is directly connected to every other node in the graph. Using an adjacency matrix, the time complexity of this algorithm is O(n*n), where n is the number of nodes in the graph, as for every node it determines if there exists an edge to every other node. 
+Degree centrality for a node s represents the fraction of the graph that s is directly connected to. If a node has a degree centrality score of 0, it is disjoint from the rest of the graph. If a node has a degree centrality score of 1, it is directly connected to every other node in the graph. Using an adjacency matrix, the time complexity of this algorithm is O(n*n), where n is the number of nodes in the graph, as for every node it determines if there exists an edge to every other node. 
 
 ## Parallelization
 ### Parallelization with MPI
@@ -47,7 +47,7 @@ We ran the degree centrality algorithm on the all.edges file, which contains a l
 | 84 | 236 |
 | 133 | 62 |
 
-The serial runtime for this degree centrality on the all.edges file is 0.051459 seconds. 
+The serial runtime for degree centrality on the all.edges file is 0.051459 seconds. 
 
 ### Results 
 
